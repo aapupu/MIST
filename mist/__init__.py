@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __version__ = '1.0.0'
 __author__ = 'Lai Wenpu'
 __email__ = 'kyzy850520@163.com'
