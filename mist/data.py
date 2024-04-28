@@ -8,9 +8,7 @@ import scanpy as sc
 import scirpy as ir
 from sklearn.preprocessing import MaxAbsScaler
 
-import torch
-from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
+import .model.dataset import scRNADataset, scTCRDataset, MultiDataset, DataLoaderX
 
 
 def load_scTCR(path, batch, type='10X'):
@@ -212,9 +210,9 @@ def process_multimode(
 #             batch_size=128,
 #             num_workers=8):
 #     if adata: 
-#         print('Raw dataset shape: {}'.format(adata.shape))
+#         print('Raw  shape: {}'.format(adata.shape))
 #     else:
-#         print('Raw dataset shape: {}'.format(adata_tcr.shape))
+#         print('Raw  shape: {}'.format(adata_tcr.shape))
         
 #     assert type in ['rna', 'tcr', 'multi'], 'type must in rna, tcr or multi.'
 #     if type == 'rna':
