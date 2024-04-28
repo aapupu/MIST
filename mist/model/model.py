@@ -7,12 +7,12 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal
 
-from scRNAlayer import *
-from scTCRlayer import *
-from utils import *
-from loss import *
-from data import *
-from metrics import *
+from .scRNAlayer import *
+from .scTCRlayer import *
+from .utils import *
+from .loss import *
+from .data import *
+from .metrics import *
 
 cdr3_conv_config = [
     {'conv_params': {'in_channels': 1, 'out_channels': 16, 'kernel_size': (4, 4), 'stride': (2, 2), 'padding': (0, 0)}},  #[14, 31]
