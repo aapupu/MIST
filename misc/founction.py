@@ -1,8 +1,3 @@
-"""
-# MAGIC was modified based on
-# https://github.com/dpeerlab/magic/blob/published/src/magic/MAGIC_core.py
-"""
-
 from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
 import numpy as np
