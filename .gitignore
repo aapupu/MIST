@@ -1,3 +1,18 @@
 # docs
 /docs/
 
+# Temp files
+.DS_Store
+*~
+
+# Distribution / packaging
+/build/
+/dist/
+/*.egg-info/
+
+# IDEs
+/.idea/
+/.vscode/
+
+# node
+/node_modules/
