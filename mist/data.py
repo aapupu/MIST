@@ -8,8 +8,7 @@ import scanpy as sc
 import scirpy as ir
 from sklearn.preprocessing import MaxAbsScaler
 
-import .model.dataset import scRNADataset, scTCRDataset, MultiDataset, DataLoaderX
-
+from .model.dataset import scRNADataset, scTCRDataset, MultiDataset, DataLoaderX
 
 def load_scTCR(path, batch, type='10X'):
     assert type in ['10X', 'tracer', 'BD', 'h5ad'], 'type of scTCR-seq data must in 10X, tracer, BD, or h5ad.'
