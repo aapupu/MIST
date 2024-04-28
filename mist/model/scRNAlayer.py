@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.distributions import Normal
 
-from .performer_attention import *
+from .performer_attention import SelfAttention
 
 
 class DSBN1d(nn.Module):
