@@ -75,7 +75,6 @@ def process_scRNA(
         pct_mt = None,
         n_top_genes = 2000, 
         backed = False,
-        logger=None, 
         multimodality=False,
         adata_tcr = None,
         protein=None,
@@ -84,11 +83,11 @@ def process_scRNA(
         remove_TCRGene = False 
         
     ):
-    if logger: logger.info('Processing scRNA data')
+    print('Processing scRNA-seq data')
     if type(adata.X) != csr.csr_matrix and (not backed) and (not adata.isbacked):
             adata.X = scipy.sparse.csr_matrix(adata.X)
             
-    if logger: logger.info('Filtering cells and genes')
+    print('Filtering cells and genes')
     adata = adata[:, [gene for gene in adata.var_names if not str(gene).startswith('ERCC')]]
     sc.pp.filter_cells(adata, min_genes=min_genes)
     sc.pp.filter_genes(adata, min_cells=min_cells)
@@ -101,7 +100,7 @@ def process_scRNA(
         adata = adata[:, [gene for gene in adata.var_names if not str(gene).startswith(tuple(['MT-', 'mt-']))]]
     
     if multimodality:
-        if logger: logger.info('Concat RNA and TCR')
+        print('Concat RNA and TCR')
         common_cells = adata.obs_names.intersection(adata_tcr.obs_names)
         adata = adata[common_cells]
         adata_tcr = adata_tcr[common_cells]
@@ -114,7 +113,7 @@ def process_scRNA(
         selected_batches = batch_counts[batch_counts >= batch_min].index
         adata = adata[adata.obs['batch'].isin(selected_batches)]
     
-    if logger: logger.info('Normalize and log1p per cell')
+    print('Normalize and log1p per cell')
     sc.pp.normalize_total(adata, target_sum=1e4)
     sc.pp.log1p(adata)
     adata.raw = adata
@@ -126,7 +125,7 @@ def process_scRNA(
     if not pd.api.types.is_categorical_dtype(adata.obs['batch']):
         adata.obs['batch'] = adata.obs['batch'].astype('category')
         
-    if logger: logger.info('Finding HVG and maxabs scaling')
+    print('Finding HVG and maxabs scaling')
     if type(n_top_genes) == int:
         sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, batch_key='batch',inplace=False, subset=True)
         adata = adata[:, adata.var.highly_variable]
@@ -148,17 +147,16 @@ def process_scRNA(
     else: 
         adata.X = MaxAbsScaler().fit_transform(adata.X)
         
-    if logger: logger.info('Processed adata shape: {}'.format(adata.shape))
+    print('Processed adata shape: {}'.format(adata.shape))
     return adata
 
 def process_scTCR(
         adata_tcr, 
         max_len=30,
         TCR_dict=None,
-        logger=None,
         scirpy=None
     ):
-    if logger: logger.info('Filtering TCR')
+    print.info('Filtering TCR')
     if scirpy: 
         ir.tl.chain_qc(adata_tcr)
         adata_tcr = adata_tcr[adata_tcr.obs['chain_pairing'].isin(['single pair']),:]
@@ -174,7 +172,7 @@ def process_scTCR(
                           adata_tcr.obs['IR_VJ_1_junction_aa'].str.len().le(max_len),:]
     adata_tcr.obs = adata_tcr.obs.dropna(axis=1, how='all')
     
-    if logger: logger.info('Processed scTCR shape: {}'.format(adata_tcr.shape))
+    print('Processed scTCR-seq shape: {}'.format(adata_tcr.shape))
     return adata_tcr
 
 def process_multimode(
@@ -188,20 +186,19 @@ def process_multimode(
         pct_mt = None,
         n_top_genes = 2000, 
         backed = False,
-        logger=None,
         protein=None,
         batch_scale=False,
-        batch_min=100,
+        batch_min=0,
         remove_TCRGene = False 
     ):
     if adata_tcr:
-        adata_tcr = process_scTCR(adata_tcr, max_len, TCR_dict, logger,scirpy)
-        adata = process_scRNA(adata, min_genes, min_cells, pct_mt, n_top_genes, backed, logger, 
+        adata_tcr = process_scTCR(adata_tcr, max_len, TCR_dict, scirpy)
+        adata = process_scRNA(adata, min_genes, min_cells, pct_mt, n_top_genes, backed, 
                         multimodality = True, adata_tcr = adata_tcr,protein=protein,batch_scale=batch_scale,
                         batch_min=batch_min, remove_TCRGene=remove_TCRGene)
     else:
-        adata_tcr = process_scTCR(adata, max_len, TCR_dict, logger)
-        adata = process_scRNA(adata, min_genes, min_cells, pct_mt, n_top_genes, backed, logger, 
+        adata_tcr = process_scTCR(adata, max_len, TCR_dict)
+        adata = process_scRNA(adata, min_genes, min_cells, pct_mt, n_top_genes, backed, 
                         multimodality = True, adata_tcr = adata_tcr,protein=protein,batch_scale=batch_scale,
                         batch_min=batch_min,remove_TCRGene=remove_TCRGene)
     return adata
@@ -285,27 +282,26 @@ class DataLoaderX(DataLoader):
 #             pct_mt=None,
 #             n_top_genes=2000, 
 #             backed=False,
-#             logger=None,
 #             TCR_dict=None,
 #             max_len = 30,
 #             batch_size=128,
 #             num_workers=8):
 #     if adata: 
-#         if logger: logger.info('Raw dataset shape: {}'.format(adata.shape))
+#         print('Raw dataset shape: {}'.format(adata.shape))
 #     else:
-#         if logger: logger.info('Raw dataset shape: {}'.format(adata_tcr.shape))
+#         print('Raw dataset shape: {}'.format(adata_tcr.shape))
         
 #     assert type in ['rna', 'tcr', 'multi'], 'type must in rna, tcr or multi.'
 #     if type == 'rna':
 #         adata = process_scRNA(adata, min_genes, min_cells,  pct_mt, n_top_genes, backed,
-#                              logger, multimodality=False)
+#                              multimodality=False)
 #         scdata = scRNADataset(adata)
 #     elif type == 'tcr':
-#         adata = process_scTCR(adata_tcr, max_len, TCR_dict, logger)
+#         adata = process_scTCR(adata_tcr, max_len, TCR_dict)
 #         scdata = scTCRDataset(adata,TCR_dict)
 #     elif type == 'multi':
 #         adata = process_multimode(adata, adata_tcr, max_len, TCR_dict, 
-#                                 min_genes, min_cells,  pct_mt, n_top_genes, backed, logger)
+#                                 min_genes, min_cells,  pct_mt, n_top_genes, backed)
 #         scdata = MultiDataset(adata,TCR_dict)
         
 #     trainloader = DataLoaderX(scdata, batch_size=batch_size, 
