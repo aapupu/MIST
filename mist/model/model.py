@@ -11,8 +11,9 @@ from .scRNAlayer import *
 from .scTCRlayer import *
 from .utils import *
 from .loss import *
-from .data import *
 from .metrics import *
+from .dataset import scTCRDataset, DataLoaderX
+
 
 cdr3_conv_config = [
     {'conv_params': {'in_channels': 1, 'out_channels': 16, 'kernel_size': (4, 4), 'stride': (2, 2), 'padding': (0, 0)}},  #[14, 31]
