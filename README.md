@@ -1,2 +1,2 @@
-# MISC
-Deep learning model for integrating of single-cell multi-omics data
+# MultiInSight T-cell（MIST）
+Deep learning model for integrating of scRNA-seq and scTCR-seq data
