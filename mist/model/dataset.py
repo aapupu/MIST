@@ -1,6 +1,7 @@
+from prefetch_generator import BackgroundGenerator
+
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from prefetch_generator import BackgroundGenerator
 
 from .utils import tcr_to_vec
 
