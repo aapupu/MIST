@@ -1,3 +1,8 @@
+"""
+# MAGIC was modified based on
+# https://github.com/dpeerlab/magic/blob/published/src/magic/MAGIC_core.py
+"""
+
 import numpy as np
 from scipy.sparse import issparse, csr_matrix, find
 from sklearn.neighbors import NearestNeighbors
