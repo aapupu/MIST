@@ -2,7 +2,7 @@
 # MAGIC was modified based on
 # https://github.com/dpeerlab/magic/blob/published/src/magic/MAGIC_core.py
 
-File Name: peformer_attention.py
+File Name: magic_modify.py
 """
 
 import numpy as np
