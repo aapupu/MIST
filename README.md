@@ -1,2 +1,2 @@
 # MultiInSight T-cell（MIST）
-Deep learning model for integrating of scRNA-seq and scTCR-seq data
+MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight
