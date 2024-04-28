@@ -1,9 +1,9 @@
-from sklearn.neighbors import KNeighborsClassifier
 import pandas as pd
 import numpy as np
 
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.neighbors import KNeighborsClassifier
 
 def remove_redundant_genes(df, min_occurrence=0.5, top=100):
     """_summary_
