@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 # Modified based on
 # https://github.com/google-research/google-research/blob/master/performer/fast_attention/jax/fast_attention.py &
