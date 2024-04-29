@@ -11,7 +11,7 @@ import os
 import scanpy as sc
 from typing import List
 
-from .data import load_data
+from .data import load_data, neighbors_umap
 from .model.model import VAE_scRNA, VAE_scTCR, VAE_Multi
 from .model.utils import seed_everything, make_TCR_dict
 
@@ -114,31 +114,48 @@ def MIST(rna_path:List[str]=None,
               outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
 
     model.load_model(os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
+        
     if type == 'multi':
         print('Encode latent')
+        # multi
         adata.obsm['latent'] = model_tcr._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
                                                       device=device, TCR_dict=TCR_dict, temperature=1)
         pca_multi = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_pca']=pca_multi.fit_transform(adata.obsm['latent'])
         
+        # rna
         adata.obsm['latent_rna'] = model_tcr._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
         pca_rna = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_rna_pca']=pca_rna.fit_transform(adata.obsm['latent_rna'])
         
+        #tcr
         adata.obsm['latent_tcr'] = model_tcr._encodeTCR(dataloader_tuple[4], mode='latent', eval=True, device=device,
                                                         TCR_dict=TCR_dict, temperature=1)
         pca_tcr = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
         
         print('Clusting')
-        sc.pp.neighbors(adata, n_neighbors=30, use_rep='latent_pca')
-        sc.tl.umap(adata, min_dist=0.1)
-        adata.obsm['X_multi_umap'] = adata.obsm['X_umap']
-        sc.tl.leiden(adata, resolution=1.0, key_added='multi-cluster')
+        neighbors_umap(adata, use_rep='latent_pca', n_pcs=None, key_added='multi')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='multi',key_added='multi-cluster')
+        neighbors_umap(adata, use_rep='latent_rna_pca', n_pcs=None, key_added='rna')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='rna', key_added='rna-cluster')
+        neighbors_umap(adata, use_rep='latent_tcr_pca', n_pcs=None, key_added='tcr')
 
-    
+    elif type == 'rna':
+        adata.obsm['latent_rna'] = model._encode(dataloader_tuple[2], mode='latent', eval='True', device=device)
         
+        print('Clusting')
+        neighbors_umap(adata, use_rep='latent_rna', n_pcs=None, key_added='rna')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='rna', key_added='rna-cluster')
 
+    elif type == 'tcr':
+        adata.obsm['latent_tcr'] = model._encode(tcr_test_dataloder, mode='latent', eval=True, device=device,
+                                                TCR_dict=TCR_dict, temperature=1 )
+        pca_tcr = PCA(n_components=15, random_state=seed)
+        adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
+        neighbors_umap(adata, use_rep='latent_tcr_pca', n_pcs=None, key_added='tcr')
+        
+    adata.write(os.path.join(outdir, 'adata.h5ad') if outdir else 'adata.h5ad')
     return adata, model
 
 def remove_redundant_genes(df, min_occurrence=0.5, top=100):
