@@ -224,7 +224,7 @@ def load_data(rna_path=None,
     else:
         adata = None
         
-    if tcr_data_type is not None: 
+    if tcr_path is not None: 
         adata_tcr = load_scTCR(tcr_path, batch, tcr_data_type)
         condition = adata_tcr.obs['IR_VJ_1_v_call'].str.contains('DV') & ~adata_tcr.obs['IR_VJ_1_v_call'].str.contains('/DV')
         if any(condition):
