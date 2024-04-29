@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 import torch
 import torch.nn as nn
@@ -22,7 +23,14 @@ def make_aa_dict():
     }
     return amino_acid_dict
 
-def make_TCR_dict(aa_dict, bv_dict, bj_dict, av_dict, aj_dict):
+def make_TCR_dict():
+    imgt_vdj = pd.read_csv('docs/imgt_pip_vdj.csv')
+    imgt_vdj['Gene'] = imgt_vdj['0'].apply(lambda x: x.replace('DV', '/DV').replace('OR', '/OR') if ('DV' in x) or ('OR' in x) else x)
+    aa_dict = make_aa_dict()
+    bv_dict = make_gene_dict(list(imgt_vdj['Gene'][imgt_vdj['Gene'].str.contains('TRBV')]))
+    bj_dict = make_gene_dict(list(imgt_vdj['Gene'][imgt_vdj['Gene'].str.contains('TRBJ')]))
+    av_dict = make_gene_dict(list(imgt_vdj['Gene'][imgt_vdj['Gene'].str.contains('TRAV')]))
+    aj_dict = make_gene_dict(list(imgt_vdj['Gene'][imgt_vdj['Gene'].str.contains('TRAJ')]))
     return {'AA':aa_dict, 'TRBV':bv_dict, 'TRBJ':bj_dict,
             'TRAV':av_dict, 'TRAJ':aj_dict}
 
