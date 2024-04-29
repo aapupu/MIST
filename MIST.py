@@ -2,7 +2,7 @@
 import argparse
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Online single-cell data integration through projecting heterogeneous datasets into a common cell-embedding space')
+    parser = argparse.ArgumentParser(description='MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight')
     
     parser.add_argument('--data_list', '-d', type=str, nargs='+', default=[])
     parser.add_argument('--batch_categories', '-b', type=str, nargs='+', default=None)
