@@ -174,7 +174,7 @@ def process_multimode(
         max_len=30,
         TCR_dict=None,
         scirpy=True,
-        min_genes = 200, 
+        min_genes = 600, 
         min_cells = 3, 
         pct_mt = None,
         n_top_genes = 2000, 
@@ -187,47 +187,113 @@ def process_multimode(
     if adata_tcr:
         adata_tcr = process_scTCR(adata_tcr, max_len, TCR_dict, scirpy)
         adata = process_scRNA(adata, min_genes, min_cells, pct_mt, n_top_genes, backed, 
-                        multimodality = True, adata_tcr = adata_tcr,protein=protein,batch_scale=batch_scale,
+                        multimodality=True, adata_tcr = adata_tcr,protein=protein,batch_scale=batch_scale,
                         batch_min=batch_min, remove_TCRGene=remove_TCRGene)
     else:
         adata_tcr = process_scTCR(adata, max_len, TCR_dict)
         adata = process_scRNA(adata, min_genes, min_cells, pct_mt, n_top_genes, backed, 
-                        multimodality = True, adata_tcr = adata_tcr,protein=protein,batch_scale=batch_scale,
-                        batch_min=batch_min,remove_TCRGene=remove_TCRGene)
+                        multimodality=True, adata_tcr=adata_tcr, protein=protein, 
+                        batch_scale=batch_scale, batch_min=batch_min, remove_TCRGene=remove_TCRGene)
     return adata
 
-# def load_data(adata=None, 
-#             adata_tcr=None, 
-#             type='multi',         
-#             min_genes=200, 
-#             min_cells=3, 
-#             pct_mt=None,
-#             n_top_genes=2000, 
-#             backed=False,
-#             TCR_dict=None,
-#             max_len = 30,
-#             batch_size=128,
-#             num_workers=8):
-#     if adata: 
-#         print('Raw  shape: {}'.format(adata.shape))
-#     else:
-#         print('Raw  shape: {}'.format(adata_tcr.shape))
+def load_data(rna_path=None, 
+            tcr_path=None, 
+            batch=None,
+            rna_data_type=None,
+            tcr_data_type=None,
+            protein_path=None,
+            type='multi',         
+            min_genes=600, 
+            min_cells=3, 
+            pct_mt=None,
+            n_top_genes=2000, 
+            backed=False,
+            batch_scale=False,
+            batch_min=0,
+            remove_TCRGene=False,
+            TCR_dict=None,
+            max_len=30,
+            scirpy=True,
+            batch_size=128,
+            num_workers=8
+             ):
+                 
+    if rna_path is not none:
+        adata = load_scRNA(rna_path, batch, rna_data_type)
+        print('Raw adata shape: {}'.format(adata.shape))
+    else:
+        adata = None
         
-#     assert type in ['rna', 'tcr', 'multi'], 'type must in rna, tcr or multi.'
-#     if type == 'rna':
-#         adata = process_scRNA(adata, min_genes, min_cells,  pct_mt, n_top_genes, backed,
-#                              multimodality=False)
-#         scdata = scRNADataset(adata)
-#     elif type == 'tcr':
-#         adata = process_scTCR(adata_tcr, max_len, TCR_dict)
-#         scdata = scTCRDataset(adata,TCR_dict)
-#     elif type == 'multi':
-#         adata = process_multimode(adata, adata_tcr, max_len, TCR_dict, 
-#                                 min_genes, min_cells,  pct_mt, n_top_genes, backed)
-#         scdata = MultiDataset(adata,TCR_dict)
+    if tcr_data_type is not none: 
+        adata_tcr = load_scTCR(tcr_path, batch, tcr_data_type)
+        condition = adata_tcr.obs['IR_VJ_1_v_call'].str.contains('DV') & ~adata_tcr.obs['IR_VJ_1_v_call'].str.contains('/DV')
+        if any(condition):
+            adata_tcr.obs['IR_VJ_1_v_call'] = adata_tcr.obs['IR_VJ_1_v_call'].astype('str')
+            adata_tcr.obs['IR_VJ_1_v_call'] = adata_tcr.obs['IR_VJ_1_v_call'].apply(lambda x: x.replace('DV', '/DV').replace('OR', '/OR') if ('DV' in x) or ('OR' in x) else x)
+        print('Raw adata_tcr shape: {}'.format(adata_tcr.shape))
+    else:
+        adata_tcr = None
         
-#     trainloader = DataLoaderX(scdata, batch_size=batch_size, 
-#                             drop_last=True, shuffle=True, num_workers=num_workers)
-#     testloader = DataLoaderX(scdata,  batch_size=batch_size, 
-#                             drop_last=False, shuffle=False, num_workers=num_workers)
-#     return adata, trainloader, testloader 
+    if protein_path is not none:
+        protein = sc.read_h5ad(protein_path)
+        print('Raw adata_protein shape: {}'.format(adata_protein.shape))
+    else:
+        protein = None
+        
+    assert type in ['rna', 'tcr', 'multi'], 'type must in rna, tcr or multi.'
+    if type == 'rna':
+        adata = process_scRNA(adata, 
+                        min_genes=min_genes, 
+                        min_cells=min_cells, 
+                        pct_mt=pct_mt,
+                        n_top_genes=n_top_genes, 
+                        backed=False,
+                        multimodality=False,
+                        adata_tcr=None,
+                        protein=protein,
+                        batch_scale=batch_scale,
+                        batch_min=batch_min,
+                        remove_TCRGene=remove_TCRGene)
+        scdata = scRNADataset(adata)
+        
+    elif type == 'tcr':
+        adata = process_scTCR(adata_tcr, 
+                            max_len=max_len,
+                            TCR_dict=TCR_dict,
+                            scirpy=scirpy)
+        scdata = scTCRDataset(adata,TCR_dict)
+        
+    elif type == 'multi':
+        adata = process_multimode(adata, 
+                            adata_tcr=adata_tcr, 
+                            max_len=max_len,
+                            TCR_dict=TCR_dict,
+                            scirpy=scirpy,
+                            min_genes=min_genes, 
+                            min_cells=min_cells, 
+                            pct_mt=pct_mt,
+                            n_top_genes=n_top_genes, 
+                            backed=backed,
+                            protein=protein,
+                            batch_scale=batch_scale,
+                            batch_min=batch_min,
+                            remove_TCRGene=remove_TCRGene)
+        scdata = MultiDataset(adata,TCR_dict)
+        rna_scdata = scRNADataset(adata)
+        tcr_scdata = scTCRDataset(adata, TCR_dict)
+
+    train_set, val_set = torch.utils.data.random_split(scdata, [0.9, 0.1])    
+    trainloader = DataLoaderX(train_set, batch_size=batch_size, 
+                            drop_last=True, shuffle=True, num_workers=num_workers, pin_memory=True)
+    validloader = DataLoaderX(val_set, batch_size=batch_size, 
+                            drop_last=True, shuffle=True, num_workers=num_workers, pin_memory=True)
+    testloader = DataLoaderX(scdata,  batch_size=batch_size, 
+                            drop_last=False, shuffle=False, num_workers=num_workers, pin_memory=True)
+    if type == 'multi':
+        rna_testdataloder = DataLoaderX(rna_scdata, batch_size=batch_size, 
+                                    drop_last=False, shuffle=False, num_workers=num_workers, pin_memory=True)
+        tcr_testdataloder = DataLoaderX(tcr_scdata, batch_size=batch_size, 
+                                    drop_last=False, shuffle=False, num_workers=num_workers, pin_memory=True)
+        return adata, trainloader, validloader, testloader, rna_testdataloder, tcr_testdataloder
+    else:
+        return adata, trainloader, validloader, testloader 
