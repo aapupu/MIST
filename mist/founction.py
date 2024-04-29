@@ -221,6 +221,7 @@ def label_tcr_dist(adata, latent, label, similarity='L2dist'):
             adata.obsm[latent],
         adata.obsm[latent]
         )
+        tcr_similarity = 1-tcr_similarity
     elif similarity=='L2dist':
         tcr_similarity = euclidean_distances(
             adata.obsm[latent]
