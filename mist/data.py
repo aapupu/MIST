@@ -254,6 +254,10 @@ def load_data(rna_path=None,
                         batch_scale=batch_scale,
                         batch_min=batch_min,
                         remove_TCRGene=remove_TCRGene)
+        sc.tl.pca(adata, svd_solver='arpack')
+        sc.pp.neighbors(adata, n_neighbors=30, n_pcs=20, key_added='raw')
+        sc.tl.umap(adata, min_dist=0.1, neighbors_key='raw')
+        adata.obsm['X_raw_umap'] = adata.obsm['X_umap']
         scdata = scRNADataset(adata)
         
     elif type == 'tcr':
@@ -278,6 +282,10 @@ def load_data(rna_path=None,
                             batch_scale=batch_scale,
                             batch_min=batch_min,
                             remove_TCRGene=remove_TCRGene)
+        sc.tl.pca(adata, svd_solver='arpack')
+        sc.pp.neighbors(adata, n_neighbors=30, n_pcs=20, key_added='raw')
+        sc.tl.umap(adata, min_dist=0.1, neighbors_key='raw')
+        adata.obsm['X_raw_umap'] = adata.obsm['X_umap']
         scdata = MultiDataset(adata,TCR_dict)
         rna_scdata = scRNADataset(adata)
         tcr_scdata = scTCRDataset(adata, TCR_dict)
