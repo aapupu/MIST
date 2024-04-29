@@ -218,13 +218,13 @@ def load_data(rna_path=None,
             num_workers=8
              ):
                  
-    if rna_path is not none:
+    if rna_path is not None:
         adata = load_scRNA(rna_path, batch, rna_data_type)
         print('Raw adata shape: {}'.format(adata.shape))
     else:
         adata = None
         
-    if tcr_data_type is not none: 
+    if tcr_data_type is not None: 
         adata_tcr = load_scTCR(tcr_path, batch, tcr_data_type)
         condition = adata_tcr.obs['IR_VJ_1_v_call'].str.contains('DV') & ~adata_tcr.obs['IR_VJ_1_v_call'].str.contains('/DV')
         if any(condition):
@@ -234,9 +234,9 @@ def load_data(rna_path=None,
     else:
         adata_tcr = None
         
-    if protein_path is not none:
+    if protein_path is not None:
         protein = sc.read_h5ad(protein_path)
-        print('Raw adata_protein shape: {}'.format(adata_protein.shape))
+        print('Raw adata_protein shape: {}'.format(protein.shape))
     else:
         protein = None
         
