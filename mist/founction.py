@@ -6,19 +6,113 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 
 import torch
-import numpy as np
 import os
 import scanpy as sc
-from anndata import AnnData
-from typing import Union, List
+from typing import List
 
 from .data import load_data
-from .model.model import VAE
-from .model.utils import EarlyStopping
-from .model.metrics import 
+from .model.model import VAE_scRNA, VAE_scTCR, VAE_Multi
+from .model.utils import seed_everything, make_TCR_dict
 
-def MIST(adata):
-    return adata
+def MIST(rna_path:List[str]=None, 
+    tcr_path:List[str]=None, 
+    batch:List[str]=None,
+    rna_data_type:str='h5ad',
+    tcr_data_type:str='10X',
+    protein_path:str=None,
+    type:str='multi',         
+    min_genes:int=600, 
+    min_cells:int=3, 
+    pct_mt:int=None,
+    n_top_genes:int=2000, 
+    backed:bool=False,
+    batch_scale:bool=False,
+    batch_min:int=0,
+    remove_TCRGene:bool=False,
+    max_len:int=30,
+    scirpy:bool=True,
+    batch_size:int=128,
+    num_workers:int=8,
+    aa_dims:int=64,
+    gene_dims:int=48,
+    pooling_dims:int=16,
+    z_dims:int=128,
+    drop_prob:float=0.1,
+    weights:bool=False,
+    lr:float=1e-4,
+    weight_decay:float=1e-3,
+    max_epoch:int=400, 
+    patience:int=40, 
+    warmup:int=40,
+    penalty:str='mmd_rbf',
+    gpu:int=0, 
+    seed:int=42,
+    outdir:str=None
+    ):
+    """
+    """
+    seed_everything(seed)
+        
+    if torch.cuda.is_available(): # cuda device
+        device = 'cuda'
+        torch.cuda.set_device(gpu)
+    else:
+        device = 'cpu'
+        
+    TCR_dict = make_TCR_dict()
+    adata, *dataloader_tuple = load_data(rna_path=rna_path, 
+                                tcr_path=tcr_path, 
+                                batch=batch,
+                                rna_data_type=rna_data_type,
+                                tcr_data_type=tcr_data_type,
+                                protein_path=protein_path,
+                                type=type,         
+                                min_genes=min_genes, 
+                                min_cells=min_cells, 
+                                pct_mt=pct_mt,
+                                n_top_genes=n_top_genes, 
+                                backed=backed,
+                                batch_scale=batch_scale,
+                                batch_min=batch_min,
+                                remove_TCRGene=remove_TCRGene,
+                                TCR_dict=TCR_dict,
+                                max_len=max_len,
+                                scirpy=scirpy,
+                                batch_size=batch_size,
+                                num_workers=num_workers
+                                )
+    if type == 'rna':
+        model = VAE_scRNA(x_dims=adata.shape[1], z_dims=pooling_dims,
+                          batchs=len(adata.obs['batch'].cat.categories)).double()
+        
+        model.fit(train_dataloader=dataloader_tuple[0],  valid_dataloader=dataloader_tuple[1],
+                    lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, 
+                    patience=patience, outdir='/data5/tem/TMEsamples/TMEsamples.pt')
+        
+    elif type == 'tcr':
+        model = VAE_scTCR(z_dims=z_dims, aa_size=21, aa_dims=64, max_len=max_len, 
+               bv_size=len(TCR_dict['TRBV']), bj_size=len(TCR_dict['TRBJ']),
+               av_size=len(TCR_dict['TRAV']), aj_size=len(TCR_dict['TRAJ']), 
+               gene_dims=48, drop_prob=drop_prob).double()
+        
+    elif type == 'multi':
+        model = VAE_Multi(x_dims=adata.shape[1], pooling_dims=pooling_dims,
+                    z_dims=z_dims, batchs=len(adata.obs['batch'].cat.categories),
+                    aa_size=21, aa_dims=aa_dims, max_len=max_len, 
+                    bv_size=len(TCR_dict['TRBV']), bj_size=len(TCR_dict['TRBJ']),
+                    av_size=len(TCR_dict['TRAV']), aj_size=len(TCR_dict['TRAJ']), 
+                    gene_dims=gene_dims, drop_prob=drop_prob, weights=weights).double()
+
+    
+    
+    
+
+
+
+
+
+    
+    return adata, model
 
 def remove_redundant_genes(df, min_occurrence=0.5, top=100):
     """_summary_
