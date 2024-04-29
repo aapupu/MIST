@@ -196,6 +196,11 @@ def process_multimode(
                         batch_scale=batch_scale, batch_min=batch_min, remove_TCRGene=remove_TCRGene)
     return adata
 
+def neighbors_umap(adata, use_rep=None, n_pcs=None, key_added=None):
+    sc.pp.neighbors(adata, n_neighbors=30, use_rep=use_rep, n_pcs=n_pcs, key_added=key_added)
+    sc.tl.umap(adata, min_dist=0.1, neighbors_key=key_added)
+    adata.obsm[('X_'+key_added+'_umap')] = adata.obsm['X_umap']
+
 def load_data(rna_path=None, 
             tcr_path=None, 
             batch=None,
@@ -255,9 +260,7 @@ def load_data(rna_path=None,
                         batch_min=batch_min,
                         remove_TCRGene=remove_TCRGene)
         sc.tl.pca(adata, svd_solver='arpack')
-        sc.pp.neighbors(adata, n_neighbors=30, n_pcs=20, key_added='raw')
-        sc.tl.umap(adata, min_dist=0.1, neighbors_key='raw')
-        adata.obsm['X_raw_umap'] = adata.obsm['X_umap']
+        neighbors_umap(adata, use_rep=None, n_pcs=20, key_added='raw')
         scdata = scRNADataset(adata)
         
     elif type == 'tcr':
@@ -283,9 +286,7 @@ def load_data(rna_path=None,
                             batch_min=batch_min,
                             remove_TCRGene=remove_TCRGene)
         sc.tl.pca(adata, svd_solver='arpack')
-        sc.pp.neighbors(adata, n_neighbors=30, n_pcs=20, key_added='raw')
-        sc.tl.umap(adata, min_dist=0.1, neighbors_key='raw')
-        adata.obsm['X_raw_umap'] = adata.obsm['X_umap']
+        neighbors_umap(adata, use_rep=None, n_pcs=20, key_added='raw')
         scdata = MultiDataset(adata,TCR_dict)
         rna_scdata = scRNADataset(adata)
         tcr_scdata = scTCRDataset(adata, TCR_dict)
