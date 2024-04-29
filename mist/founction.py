@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import PCA
 
 import torch
 import os
@@ -86,14 +87,18 @@ def MIST(rna_path:List[str]=None,
                           batchs=len(adata.obs['batch'].cat.categories)).double()
         
         model.fit(train_dataloader=dataloader_tuple[0],  valid_dataloader=dataloader_tuple[1],
-                    lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, 
-                    patience=patience, outdir='/data5/tem/TMEsamples/TMEsamples.pt')
+                lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, 
+                patience=patience, outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
         
     elif type == 'tcr':
-        model = VAE_scTCR(z_dims=z_dims, aa_size=21, aa_dims=64, max_len=max_len, 
+        model = VAE_scTCR(z_dims=z_dims, aa_size=21, aa_dims=aa_dims, max_len=max_len, 
                bv_size=len(TCR_dict['TRBV']), bj_size=len(TCR_dict['TRBJ']),
                av_size=len(TCR_dict['TRAV']), aj_size=len(TCR_dict['TRAJ']), 
-               gene_dims=48, drop_prob=drop_prob).double()
+               gene_dims=gene_dims, drop_prob=drop_prob).double()
+        
+        model.fit(train_dataloader=dataloader_tuple[0], valid_dataloader=dataloader_tuple[1], 
+          lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, patience=patience, 
+          outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
         
     elif type == 'multi':
         model = VAE_Multi(x_dims=adata.shape[1], pooling_dims=pooling_dims,
@@ -102,16 +107,38 @@ def MIST(rna_path:List[str]=None,
                     bv_size=len(TCR_dict['TRBV']), bj_size=len(TCR_dict['TRBJ']),
                     av_size=len(TCR_dict['TRAV']), aj_size=len(TCR_dict['TRAJ']), 
                     gene_dims=gene_dims, drop_prob=drop_prob, weights=weights).double()
+        
+        model.fit(train_dataloader=dataloader_tuple[0], valid_dataloader=dataloader_tuple[1], 
+              lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, 
+              penalty=penalty, patience=patience, warmup=warmup,
+              outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
+
+    model.load_model(os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
+    if type == 'multi':
+        print('Encode latent')
+        adata.obsm['latent'] = model_tcr._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
+                                                      device=device, TCR_dict=TCR_dict, temperature=1)
+        pca_multi = PCA(n_components=15, random_state=seed)
+        adata.obsm['latent_pca']=pca_multi.fit_transform(adata.obsm['latent'])
+        
+        adata.obsm['latent_rna'] = model_tcr._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
+        pca_rna = PCA(n_components=15, random_state=seed)
+        adata.obsm['latent_rna_pca']=pca_rna.fit_transform(adata.obsm['latent_rna'])
+        
+        adata.obsm['latent_tcr'] = model_tcr._encodeTCR(dataloader_tuple[4], mode='latent', eval=True, device=device,
+                                                        TCR_dict=TCR_dict, temperature=1)
+        pca_tcr = PCA(n_components=15, random_state=seed)
+        adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
+        
+        print('Clusting')
+        sc.pp.neighbors(adata, n_neighbors=30, use_rep='latent_pca')
+        sc.tl.umap(adata, min_dist=0.1)
+        adata.obsm['X_multi_umap'] = adata.obsm['X_umap']
+        sc.tl.leiden(adata, resolution=1.0, key_added='multi-cluster')
 
     
-    
-    
+        
 
-
-
-
-
-    
     return adata, model
 
 def remove_redundant_genes(df, min_occurrence=0.5, top=100):
