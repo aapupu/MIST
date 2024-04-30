@@ -224,12 +224,16 @@ def load_data(rna_path=None,
              ):
                  
     if rna_path is not None:
+        if batch is None:
+            batch = [str(i) for i in range(len(rna_path))]
         adata = load_scRNA(rna_path, batch, rna_data_type)
         print('Raw adata shape: {}'.format(adata.shape))
     else:
         adata = None
         
     if tcr_path is not None: 
+        if batch is None:
+            batch = [str(i) for i in range(len(tcr_path))]
         adata_tcr = load_scTCR(tcr_path, batch, tcr_data_type)
         condition = adata_tcr.obs['IR_VJ_1_v_call'].str.contains('DV') & ~adata_tcr.obs['IR_VJ_1_v_call'].str.contains('/DV')
         if any(condition):
