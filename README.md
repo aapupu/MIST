@@ -3,14 +3,14 @@ MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T
 
 ![image](https://github.com/aapupu/MIST/blob/main/docs/MIST.png)
 
-Install
+Installation
 -------
-### install from PyPI
+### Install from PyPI
 ```bash
 pip install mist
 ```
 
-### install from GitHub
+### Install from GitHub
 install the latest develop version
 ```bash
 pip install git+https://github.com/aapupu/mist.git
