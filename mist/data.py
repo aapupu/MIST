@@ -235,9 +235,9 @@ def load_data(rna_path=None,
         if batch is None:
             batch = [str(i) for i in range(len(tcr_path))]
         adata_tcr = load_scTCR(tcr_path, batch, tcr_data_type)
+        adata_tcr.obs['IR_VJ_1_v_call'] = adata_tcr.obs['IR_VJ_1_v_call'].astype('str')
         condition = adata_tcr.obs['IR_VJ_1_v_call'].str.contains('DV') & ~adata_tcr.obs['IR_VJ_1_v_call'].str.contains('/DV')
         if any(condition):
-            adata_tcr.obs['IR_VJ_1_v_call'] = adata_tcr.obs['IR_VJ_1_v_call'].astype('str')
             adata_tcr.obs['IR_VJ_1_v_call'] = adata_tcr.obs['IR_VJ_1_v_call'].apply(lambda x: x.replace('DV', '/DV').replace('OR', '/OR') if ('DV' in x) or ('OR' in x) else x)
         print('Raw adata_tcr shape: {}'.format(adata_tcr.shape))
     else:
