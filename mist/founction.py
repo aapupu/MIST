@@ -82,6 +82,7 @@ def MIST(rna_path:List[str]=None,
                                 batch_size=batch_size,
                                 num_workers=num_workers
                                 )
+    print('Model training')
     if type == 'rna':
         model = VAE_scRNA(x_dims=adata.shape[1], z_dims=pooling_dims,
                           batchs=len(adata.obs['batch'].cat.categories)).double()
@@ -114,9 +115,8 @@ def MIST(rna_path:List[str]=None,
               outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
 
     model.load_model(os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
-        
+    print('Encode latent')
     if type == 'multi':
-        print('Encode latent')
         # multi
         adata.obsm['latent'] = model_tcr._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
                                                       device=device, TCR_dict=TCR_dict, temperature=1)
