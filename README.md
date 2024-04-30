@@ -30,12 +30,12 @@ Usage
 ### 1. API function
 ```bash
 from mist import MIST
-adata, model = MIST()
+adata, model = MIST(rna_path, tcr_path, batch, rna_data_type, tcr_data_type, type)
 ```
 
 ### 2. Command line
 ```bash
-MIST --
+MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch1 batch1 --rna_data_type h5ad --tcr_data_type 10X --type multi
 ```
 
 #### Output 
@@ -43,12 +43,32 @@ MIST --
 - model.pt
 
 #### Option
-
+- --rna_path
+- --tcr_path
+- --batch
+- --rna_data_type
+- --tcr_data_type
+- --protein_path
+- --type
+- --min_genes
+- --min_cells
+- --pct_mt
+- --n_top_genes
+- --batch_size
+- --pooling_dims
+- --z_dims
+- --drop_prob
+- --lr
+- --weight_decay
+- --max_epoch
+- --patience
+- --gpu
+- --seed
+- --outdir
 
 Citation
 -------
 **MIST**
-
 
 Contacts
 -------
