@@ -149,8 +149,8 @@ def MIST(rna_path:List[str]=None,
         sc.tl.leiden(adata, resolution=1.0, neighbors_key='rna', key_added='rna-cluster')
 
     elif type == 'tcr':
-        adata.obsm['latent_tcr'] = model._encode(tcr_test_dataloder, mode='latent', eval=True, device=device,
-                                                TCR_dict=TCR_dict, temperature=1 )
+        adata.obsm['latent_tcr'] = model._encode(dataloader_tuple[2], mode='latent', eval=True, device=device,
+                                                TCR_dict=TCR_dict, temperature=1)
         pca_tcr = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
         neighbors_umap(adata, use_rep='latent_tcr_pca', n_pcs=None, key_added='tcr')
