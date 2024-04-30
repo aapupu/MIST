@@ -9,3 +9,4 @@ torch>=2.0.0
 einops>=0.6.0
 tqdm>=4.64.1
 prefetch_generator>=1.0.3
+local-attention>=1.5.7
