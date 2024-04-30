@@ -7,6 +7,7 @@ File Name: peformer_attention.py
 """
 
 import math
+
 import torch
 from torch import nn
 from torch.cuda.amp import autocast
