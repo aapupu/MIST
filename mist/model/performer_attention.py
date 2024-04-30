@@ -11,8 +11,9 @@ import math
 import torch
 from torch import nn
 from torch.cuda.amp import autocast
-from einops import rearrange, repeat
+from local_attention import LocalAttention
 
+from einops import rearrange, repeat
 from functools import partial
 from contextlib import contextmanager
 
