@@ -20,7 +20,7 @@ setup(
         description='MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight',
         long_description=README,
         packages=find_packages(),
-        install_requires=requirements,
+        install_requires=[], # requirements
         url='https://github.com/aapupu/MIST',
         scripts=['MIST.py'],
         python_requires='>=3.7.3',
