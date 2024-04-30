@@ -7,6 +7,7 @@ import anndata
 import scanpy as sc
 import scirpy as ir
 from sklearn.preprocessing import MaxAbsScaler
+import torch
 
 from .model.dataset import scRNADataset, scTCRDataset, MultiDataset, DataLoaderX
 
