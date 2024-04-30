@@ -1,5 +1,5 @@
+import numpy as np
 from prefetch_generator import BackgroundGenerator
-
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
