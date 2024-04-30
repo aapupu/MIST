@@ -13,13 +13,13 @@ pip install mist
 ### Install from GitHub
 install the latest develop version
 ```bash
-pip install git+https://github.com/aapupu/mist.git
+pip install git+https://github.com/aapupu/MIST.git
 ```
 
 or git clone and install
 ```bash
-git clone git://github.com/aapupu/mist.git
-cd mist
+git clone git://github.com/aapupu/MIST.git
+cd MIST
 python setup.py install
 ```
 
