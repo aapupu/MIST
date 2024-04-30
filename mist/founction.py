@@ -118,18 +118,18 @@ def MIST(rna_path:List[str]=None,
     print('Encode latent')
     if type == 'multi':
         # multi
-        adata.obsm['latent'] = model_tcr._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
+        adata.obsm['latent'] = model._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
                                                       device=device, TCR_dict=TCR_dict, temperature=1)
         pca_multi = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_pca']=pca_multi.fit_transform(adata.obsm['latent'])
         
         # rna
-        adata.obsm['latent_rna'] = model_tcr._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
+        adata.obsm['latent_rna'] = model._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
         pca_rna = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_rna_pca']=pca_rna.fit_transform(adata.obsm['latent_rna'])
         
         #tcr
-        adata.obsm['latent_tcr'] = model_tcr._encodeTCR(dataloader_tuple[4], mode='latent', eval=True, device=device,
+        adata.obsm['latent_tcr'] = model._encodeTCR(dataloader_tuple[4], mode='latent', eval=True, device=device,
                                                         TCR_dict=TCR_dict, temperature=1)
         pca_tcr = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
