@@ -10,7 +10,7 @@ Install
 pip install mist
 ```
 
-install from GitHub
+### install from GitHub
 install the latest develop version
 ```bash
 pip install git+https://github.com/aapupu/mist.git
