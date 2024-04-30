@@ -23,7 +23,7 @@ def load_scTCR(path, batch, type='10X'):
             adata_tcr = ir.io.read_bd_rhapsody(sample)
         elif type == 'h5ad':
             adata_tcr = ir.io.read_h5ad(sample)
-        # adata_tcr.obs['batch'] = sample_meta
+        adata_tcr.obs['batch'] = sample_meta
         adatas_tcr[sample_meta] = adata_tcr
 
     adata_tcr = anndata.concat(adatas_tcr, index_unique="_")
