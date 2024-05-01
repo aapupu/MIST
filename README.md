@@ -67,7 +67,7 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 - **--patience**<br />Max epochs for easy-stop.
 - **--warmup**<br />Epochs for warm up.
 - **--gpu**<br />Index of GPU to use if GPU is available. Default: 0.
-- --seed**<br />Random seed.
+- **--seed**<br />Random seed.
 - **--outdir**<br />Output directory.
 
 Citation
