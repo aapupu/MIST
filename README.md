@@ -46,7 +46,7 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 - model.pt: saved model
 
 #### Option
-- --rna_path
+- --rna_path<br />
 scRNA-seq data paths
 - --tcr_path
 scTCR-seq data paths
