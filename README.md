@@ -21,6 +21,7 @@ or git clone and install
 git clone git://github.com/aapupu/MIST.git
 cd MIST
 python setup.py install
+pip install .
 ```
 
 **Note: If cuda is available, GPU modes will be run automatically.**
@@ -39,8 +40,8 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 ```
 
 #### Output 
-- adata.h5ad
-- model.pt
+- adata.h5ad: preprocessed data and results
+- model.pt: saved model
 
 #### Option
 - --rna_path
