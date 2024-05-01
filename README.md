@@ -47,27 +47,51 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 
 #### Option
 - --rna_path
+scRNA-seq data paths
 - --tcr_path
+scTCR-seq data paths
 - --batch
+batch imformation
 - --rna_data_type
+scRNA-seq data type
 - --tcr_data_type
+scTCR-seq data type
 - --protein_path
+ADT data path
 - --type
+Model type
 - --min_genes
+Filtered out cells that are detected in less than min_genes. Default: 600.
 - --min_cells
+Filtered out genes that are detected in less than min_cells. Default: 3.
 - --pct_mt
+Filtered out genes that are mt. Default: None.
 - --n_top_genes
+Number of highly-variable genes to keep. Default: 2000.
 - --batch_size
+Batch size
 - --pooling_dims
+Pooling_dims.
 - --z_dims
+latent dims. If type='rna', z_dims==pooling_dims.
 - --drop_prob
+Drop_prob of TCR.
 - --lr
+Learning rate.
 - --weight_decay
+Weight_decay of learning rate.
 - --max_epoch
+Max epochs for training. 
 - --patience
+Max epochs for easy-stop.
+- --warmup
+Epochs for warm up.
 - --gpu
+Index of GPU to use if GPU is available. Default: 0.
 - --seed
+Random seed.
 - --outdir
+Output directory.
 
 Citation
 -------
