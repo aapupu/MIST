@@ -48,49 +48,49 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 #### Option
 - **--rna_path**<br />
 scRNA-seq data paths
-- --tcr_path
+- **--tcr_path**<br />
 scTCR-seq data paths
-- --batch
+- **--batch**<br />
 batch imformation
-- --rna_data_type
+- **--rna_data_type**<br />
 scRNA-seq data type
-- --tcr_data_type
+- **--tcr_data_type**<br />
 scTCR-seq data type
-- --protein_path
+- **--protein_path**<br />
 ADT data path
-- --type
+- **--type**<br />
 Model type
-- --min_genes
+- **--min_genes**<br />
 Filtered out cells that are detected in less than min_genes. Default: 600.
-- --min_cells
+- **--min_cells**<br />
 Filtered out genes that are detected in less than min_cells. Default: 3.
-- --pct_mt
+- **--pct_mt**<br />
 Filtered out genes that are mt. Default: None.
-- --n_top_genes
+- **--n_top_genes**<br />
 Number of highly-variable genes to keep. Default: 2000.
-- --batch_size
+- **--batch_size**<br />
 Batch size
-- --pooling_dims
+- **--pooling_dims**<br />
 Pooling_dims.
-- --z_dims
+- **--z_dims**<br />
 latent dims. If type='rna', z_dims==pooling_dims.
-- --drop_prob
+- **--drop_prob**<br />
 Drop_prob of TCR.
-- --lr
+- **--lr**<br />
 Learning rate.
-- --weight_decay
+- **--weight_decay**<br />
 Weight_decay of learning rate.
-- --max_epoch
+- **--max_epoch**<br />
 Max epochs for training. 
-- --patience
+- **--patience**<br />
 Max epochs for easy-stop.
-- --warmup
+- **--warmup**<br />
 Epochs for warm up.
-- --gpu
+- **--gpu**<br />
 Index of GPU to use if GPU is available. Default: 0.
-- --seed
+- --seed**<br />
 Random seed.
-- --outdir
+- **--outdir**<br />
 Output directory.
 
 Citation
