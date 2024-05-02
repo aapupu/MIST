@@ -34,7 +34,7 @@ adata, model = MIST(rna_path, tcr_path, batch, rna_data_type, tcr_data_type, typ
 
 ### 2. Command line
 ```bash
-MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch1 batch1 --rna_data_type h5ad --tcr_data_type 10X --type multi
+MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch1 batch2 --rna_data_type h5ad --tcr_data_type 10X --type multi
 ```
 
 #### Output 
