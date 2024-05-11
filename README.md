@@ -1,4 +1,4 @@
-# MultiInSight for T-cell（MIST）
+# Multi-InSight for T-cell（MIST）
 MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight
 
 ![image](https://github.com/aapupu/MIST/blob/main/docs/MIST.png)
