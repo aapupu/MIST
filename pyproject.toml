@@ -38,5 +38,11 @@ dependencies = [
     "local-attention>=1.5.7",
 ]
 
+[tool.setuptools]
+package-data = { "MIST" = ["doc/*.csv"] }
+
+[tool.setuptools.packages.find]
+where = ["MIST"]
+
 [project.urls]
 "Homepage" = "https://github.com/aapupu/MIST"
