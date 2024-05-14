@@ -118,15 +118,15 @@ def MIST(rna_path:List[str]=None,
     print('Encode latent')
     if type == 'multi':
         # multi
-        adata.obsm['latent'] = model._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
+        adata.obsm['latent_joint'] = model._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
                                                       device=device, TCR_dict=TCR_dict, temperature=1)
         pca_multi = PCA(n_components=15, random_state=seed)
-        adata.obsm['latent_pca']=pca_multi.fit_transform(adata.obsm['latent'])
+        adata.obsm['latent_joint_pca']=pca_multi.fit_transform(adata.obsm['latent_joint'])
         
         # rna
-        adata.obsm['latent_rna'] = model._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
+        adata.obsm['latent_gex'] = model._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
         pca_rna = PCA(n_components=15, random_state=seed)
-        adata.obsm['latent_rna_pca']=pca_rna.fit_transform(adata.obsm['latent_rna'])
+        adata.obsm['latent_gex_pca']=pca_rna.fit_transform(adata.obsm['latent_gex'])
         
         #tcr
         adata.obsm['latent_tcr'] = model._encodeTCR(dataloader_tuple[4], mode='latent', eval=True, device=device,
@@ -134,19 +134,19 @@ def MIST(rna_path:List[str]=None,
         pca_tcr = PCA(n_components=15, random_state=seed)
         adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
         
-        print('Clusting')
-        neighbors_umap(adata, use_rep='latent_pca', n_pcs=None, key_added='multi')
-        sc.tl.leiden(adata, resolution=1.0, neighbors_key='multi',key_added='multi-cluster')
-        neighbors_umap(adata, use_rep='latent_rna_pca', n_pcs=None, key_added='rna')
-        sc.tl.leiden(adata, resolution=1.0, neighbors_key='rna', key_added='rna-cluster')
+        print('Clustering')
+        neighbors_umap(adata, use_rep='latent_joint_pca', n_pcs=None, key_added='joint')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='joint',key_added='joint_cluster')
+        neighbors_umap(adata, use_rep='latent_gex_pca', n_pcs=None, key_added='gex')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='gex', key_added='gex_cluster')
         neighbors_umap(adata, use_rep='latent_tcr_pca', n_pcs=None, key_added='tcr')
 
     elif type == 'rna':
-        adata.obsm['latent_rna'] = model._encode(dataloader_tuple[2], mode='latent', eval='True', device=device)
+        adata.obsm['latent_gex'] = model._encode(dataloader_tuple[2], mode='latent', eval='True', device=device)
         
-        print('Clusting')
-        neighbors_umap(adata, use_rep='latent_rna', n_pcs=None, key_added='rna')
-        sc.tl.leiden(adata, resolution=1.0, neighbors_key='rna', key_added='rna-cluster')
+        print('Clustering')
+        neighbors_umap(adata, use_rep='latent_gex', n_pcs=None, key_added='gex')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='gex', key_added='gex_cluster')
 
     elif type == 'tcr':
         adata.obsm['latent_tcr'] = model._encode(dataloader_tuple[2], mode='latent', eval=True, device=device,
