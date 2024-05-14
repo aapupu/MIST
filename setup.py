@@ -21,6 +21,9 @@ setup(
         long_description=README,
         packages=find_packages(),
         install_requires=[], # requirements
+        package_data={
+        'MIST': ['doc/*.csv'], 
+        },
         url='https://github.com/aapupu/MIST',
         scripts=['MIST.py'],
         python_requires='>=3.7.3',
