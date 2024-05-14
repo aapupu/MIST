@@ -26,7 +26,6 @@ def make_aa_dict():
     return amino_acid_dict
 
 def make_TCR_dict():
-
     current_dir = os.path.dirname(__file__)
     project_root = os.path.abspath(os.path.join(current_dir, '..', '..'))
     imgt_vdj = pd.read_csv(os.path.join(project_root, 'doc', 'imgt_pip_vdj.csv')) 
