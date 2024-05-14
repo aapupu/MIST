@@ -2,7 +2,7 @@
 MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight
 
 <div align=center><img  height="400" src=https://github.com/aapupu/MIST/blob/main/docs/MIST.jpg>
-
+<div align=left>
 Installation
 -------
 ### Install from PyPI
