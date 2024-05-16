@@ -15,11 +15,11 @@ requires-python = ">=3.7"
 classifiers = [
     'Development Status :: 3 - Alpha',
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GPL-3 License",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
     "Intended Audience :: Science/Research",
-    "Operating System :: MacOS :: MacOS X",
+    # "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
 ]
@@ -39,10 +39,10 @@ dependencies = [
 ]
 
 [tool.setuptools]
-package-data = { "MIST" = ["doc/*.csv"] }
+package-data = { "mist" = ["doc/*.csv"] }
 
 [tool.setuptools.packages.find]
-where = ["MIST"]
+where = ["mist"]
 
 [project.urls]
 "Homepage" = "https://github.com/aapupu/MIST"

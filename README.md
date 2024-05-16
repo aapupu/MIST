@@ -19,7 +19,7 @@ or git clone and install
 ```bash
 git clone git://github.com/aapupu/MIST.git
 cd MIST
-pip install .
+pip install -e .
 ```
 
 **Note: If cuda is available, GPU modes will be run automatically.**
