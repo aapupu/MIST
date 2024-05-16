@@ -44,5 +44,8 @@ package-data = { "mist" = ["doc/*.csv"] }
 [tool.setuptools.packages.find]
 where = ["mist"]
 
+[project.scripts]
+MIST = "mist.main:main"
+
 [project.urls]
 "Homepage" = "https://github.com/aapupu/MIST"
