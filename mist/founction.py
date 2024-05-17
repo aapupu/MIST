@@ -51,6 +51,47 @@ def MIST(rna_path:List[str]=None,
     outdir:str=None
     ):
     """
+    MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight.
+
+    Parameters:
+    - rna_path (List[str]): List of paths to scRNA-seq data files.
+    - tcr_path (List[str]): List of paths to scTCR-seq data files.
+    - batch (List[str]): List of batch labels.
+    - rna_data_type (str): Type of scRNA-seq data file (e.g., 'h5ad').
+    - tcr_data_type (str): Type of scTCR-seq data file (e.g., '10X').
+    - protein_path (str): Path to merged protein (ADT) data file.
+    - type (str): Type of model to train ('multi', 'rna', or 'tcr').
+    - min_genes (int): Filtered out cells that are detected in less than min_genes. Default: 600.
+    - min_cells (int): Filtered out genes that are detected in less than min_cells. Default: 3.
+    - pct_mt (int): Filtered out cells that are detected in more than percentage of mitochondrial genes. If None, Filtered out mitochondrial genes. Default: None.
+    - n_top_genes (int): Number of highly-variable genes to keep. Default: 2000.
+    - backed (bool): Whether to use backed format for reading data. Default: False.
+    - batch_scale (bool): Whether to data scale pre batch. Default: False.
+    - batch_min (int): Filtered out batch that are detected in less than cells. Default: 0.
+    - remove_TCRGene (bool): Whether to remove TCR gene (e.g., 'TRAV1-2'). Default: False.
+    - max_len (int): Maximum length of cdr3aa sequence. Default: 30.
+    - scirpy (bool): Whether to use scirpy package for filtering TCR. Default: True.
+    - batch_size (int): Batch size for training.
+    - num_workers (int): Number of workers for data loading. 
+    - aa_dims (int): Dimensionality of amino acid embeddings. Default: 64.
+    - gene_dims (int): Dimensionality of gene embeddings. Default: 48.
+    - pooling_dims (int): Dimensionality of pooling layer. Default: 16.
+    - z_dims (int): Dimensionality of latent space. Default: 128.
+    - drop_prob (float): Dropout probability. Default: 0.1.
+    - weights (bool): Whether to use weighted two mode latent space embedding. Default: False.
+    - lr (float): Learning rate. Default: 1e-4.
+    - weight_decay (float): Weight decay. Default: 1e-3.
+    - max_epoch (int): Maximum number of epochs. Default: 400.
+    - patience (int): Patience for early stopping. Default: 40.
+    - warmup (int): Warmup epochs. Default: 40.
+    - penalty (str): Type of penalty loss. Default: 'mmd_rbf'.
+    - gpu (int): Index of GPU to use if GPU is available. Default: 0.
+    - seed (int): Random seed.
+    - outdir (str): Output directory.
+
+    Returns:
+    - adata: Preprocessed adata.
+    - model: Trained model.
     """
     seed_everything(seed)
         
@@ -159,15 +200,17 @@ def MIST(rna_path:List[str]=None,
     return adata, model
 
 def remove_redundant_genes(df, min_occurrence=0.5, top=100):
-    """_summary_
+    """
+    Remove redundant genes from a dataframe of attention weights.
 
     Args:
-        df (pd dataframe): df of attention weigth
-        min_occurrence (float, optional): _description_. suguest 0.5 for celltype 0.2 for gene
-        top (int, optional): _description_. Defaults to 100.
+        df: DataFrame containing attention weights.
+        min_occurrence: Minimum occurrence threshold for genes to be considered redundant.
+                        Suggested value is 0.5 for cell type and 0.2 for gene.
+        top : Number of top genes to consider in each column. Defaults to 100.
 
     Returns:
-        _type_: _description_
+        pd.DataFrame: DataFrame with redundant genes removed.
     """
     top_genes = df.apply(lambda x: x.sort_values(ascending=False)[:top].index.tolist(), axis=0)
     flattened_genes = pd.Series(top_genes.values.flatten())
@@ -178,6 +221,18 @@ def remove_redundant_genes(df, min_occurrence=0.5, top=100):
     return df
 
 def label_transfer(adata_ref, adata_query, rep='latent', label='Celltype'):
+    """
+    Transfer labels from one AnnData object to another based on a given representation.
+
+    Args:
+        adata_ref: Reference AnnData object containing the original labels.
+        adata_query: Query AnnData object to which labels will be transferred.
+        rep: Representation used for transferring labels. Defaults to 'latent'.
+        label: Name of the label column in adata_ref. Defaults to 'Celltype'.
+
+    Returns:
+        np.ndarray: Transferred labels for adata_query.
+    """
     x1, y1 = adata_ref.obsm[rep], adata_ref.obs[label]
     x2 = adata_query.obsm[rep]
     
@@ -185,7 +240,19 @@ def label_transfer(adata_ref, adata_query, rep='latent', label='Celltype'):
     y2 = knn.predict(x2)
     return y2
 
-def label_tcr_similarity(adata, label, latent,  similarity='cosine'):
+def label_tcr_similarity(adata, label, latent,  similarity='L2dist'):
+    """
+    Calculate pairwise similarity between TCR sequences by label based on a given representation.
+
+    Args:
+        adata: AnnData object containing TCR data.
+        label: Name of the label column in adata.obs.
+        latent: Name of the representation used for similarity calculation.
+        similarity: Type of similarity metric to use. Defaults to 'L2dist'.
+
+    Returns:
+        pd.DataFrame: DataFrame containing pairwise similarity scores between TCR sequences.
+    """
     levels = adata.obs[label].cat.categories
     cos_array = np.empty((len(levels), len(levels)))
     
@@ -213,6 +280,18 @@ def label_tcr_similarity(adata, label, latent,  similarity='cosine'):
     return df
 
 def label_tcr_dist(adata, latent, label, similarity='L2dist'):
+    """
+    Calculate pairwise distances between TCR sequences of cluster based on a given representation.
+
+    Args:
+        adata: AnnData object containing TCR data.
+        latent: Name of the representation used for distance calculation.
+        label: Name of the label column in adata.obs.
+        similarity: Type of distance metric to use. Defaults to 'L2dist'.
+
+    Returns:
+        dict: Dictionary containing pairwise distances for each label category.
+    """
     levels = adata.obs[label].cat.categories
     dist_dict = dict()
     

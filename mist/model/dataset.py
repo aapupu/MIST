@@ -8,9 +8,15 @@ from .utils import tcr_to_vec
 
 class scRNADataset(Dataset):
     """
-    Dataset of scRNA data
+    Dataset of scRNA-seq data.
     """
     def __init__(self, adata):
+        """
+        Initialize the scRNA-seq dataset.
+
+        Args:
+            adata: Annotated Data object containing scRNA-seq data.
+        """        
         self.adata = adata
         self.shape = adata.shape
         
@@ -28,9 +34,16 @@ class scRNADataset(Dataset):
 
 class scTCRDataset(Dataset):
     """
-    Dataset of scTCR data
+    Dataset of scTCR-seq data.
     """
     def __init__(self, adata, TCR_dict):
+        """
+        Initialize the scTCR-seq dataset.
+
+        Args:
+            adata: Annotated Data object containing scTCR-seq data.
+            TCR_dict: Dictionary containing TCR gene information.
+        """
         self.adata = adata
         self.shape = adata.shape
         self.TCR_dict = TCR_dict
@@ -48,9 +61,16 @@ class scTCRDataset(Dataset):
 
 class MultiDataset(Dataset):
     """
-    Dataset of Multi-omics data
+    Dataset of scRNA-seq and scTCR-seq data.
     """
     def __init__(self, adata, TCR_dict):
+        """
+        Initialize the scRNA-seq and scTCR-seq dataset.
+
+        Args:
+            adata: Annotated Data object containing scRNA-seq and scTCR-seq data.
+            TCR_dict: Dictionary containing TCR gene information.
+        """
         self.adata = adata
         self.shape = adata.shape
         self.TCR_dict = TCR_dict

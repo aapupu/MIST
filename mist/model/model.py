@@ -13,7 +13,7 @@ from .scTCRlayer import encoder_scTCR, decoder_scTCR
 from .utils import convert_to_TCR, kaiming_init, EarlyStopping
 from .loss import KL_Div, scRNA_recon, scTCR_recon, euclidean_dist, symmKL, mmd_rbf
 from .metrics import rna_corr_coef, tcr_recon_evaluate
-from .dataset import scTCRDataset, DataLoaderX
+from .dataset import scRNADataset, scTCRDataset, DataLoaderX
 
 
 cdr3_conv_config = [
@@ -31,7 +31,7 @@ cdr3_conv_transpose_config = [
 
 class VAE_scRNA(nn.Module):
     """
-    VAE of scRNA
+    VAE for scRNA-seq data.
 
     Args:
         x_dims (int): Input dimension.
@@ -48,7 +48,7 @@ class VAE_scRNA(nn.Module):
         
     def _encode(self, dataloader, mode='latent',eval=True, device='cuda'):
         """
-        Encode data using the trained model.
+        Encode scRNA-seq data using the trained model.
 
         Args:
             dataloader (DataLoader): PyTorch DataLoader containing the input data.
@@ -91,12 +91,14 @@ class VAE_scRNA(nn.Module):
         Train the VAE model.
 
         Args:
-            dataloader (DataLoader): PyTorch DataLoader containing the training data.
+            train_dataloader (DataLoader): PyTorch DataLoader containing the training data.
+            valid_dataloader (DataLoader): PyTorch DataLoader containing the validation data.
             lr (float): Learning rate for the optimizer.
             weight_decay (float): L2 regularization strength.
             max_epoch (int): Maximum number of training epochs.
             device (str): Device to perform training ('cuda' or 'cpu').
             patience (int): Number of epochs with no improvement to wait before early stopping.
+            outdir (str): Directory to save the trained model.
             verbose (bool): If True, print training progress.
 
         """
@@ -171,44 +173,70 @@ class VAE_scRNA(nn.Module):
             if key in state_dict2:
                 state_dict2[key] = state_dict1[key]
         self.load_state_dict(state_dict2)
-    
+
     def gene_attn_weigth(self, adata, n_samples=64, device='cuda'):
+        """
+        Compute gene-gene attention weights.
+
+        Args:
+            adata (AnnData): Annotated Data object containing scRNA-seq data.
+            n_samples (int): Batch size.
+            device (str): Device to perform computation ('cuda' or 'cpu').
+
+        Returns:
+            pandas.DataFrame: DataFrame containing gene-gene attention weights.
+        """
         self.to(device)
-        random_indices = np.random.choice(adata.shape[0], size=n_samples, replace=False)
-        adata = adata[random_indices, :]
-        x = torch.tensor(adata.X.todense()).double()
-        x = x.unsqueeze(-1).to(device)
         self.eval()
-        _,attn_weight = self.encoder.self(x, output_attentions=True)
-        attn_weight = attn_weight.detach().cpu()
-        attn_weight = attn_weight.mean((0,1)).numpy()
-        np.fill_diagonal(attn_weight, 0)
-        return pd.DataFrame(attn_weight,index=adata.var.index.tolist(),columns=adata.var.index.tolist())
+        attn_weight_init = np.zeros((self.x_dims, self.x_dims))
+        scdata = scRNADataset(adata)
+        dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
+        for x, _, _ in dataloader:
+            x = x.double().to(device)
+            _,attn_weight = self.encoder.self(x, output_attentions=True)
+            attn_weight = attn_weight.detach().cpu()
+            attn_weight = attn_weight.mean((0,1)).numpy()
+            attn_weight_init += attn_weight
+        attn_weight_init /= len(dataloader)
+        np.fill_diagonal(attn_weight_init, 0)
+        return pd.DataFrame(attn_weight_init,index=adata.var.index.tolist(),columns=adata.var.index.tolist())
     
     def celltype_attn_weigth(self, adata, Celltype, n_samples=64, device='cuda'):
+        """
+        Compute gene-celltype attention weights.
+
+        Args:
+            adata (AnnData): Annotated Data object containing scRNA-seq data.
+            Celltype (str): Name of the celltype column in adata.obs.
+            n_samples (int): Batch size.
+            device (str): Device to perform computation ('cuda' or 'cpu').
+
+        Returns:
+            pandas.DataFrame: DataFrame containing celltype attention weights.
+        """
         self.to(device)
         self.eval()
         outs = pd.DataFrame(index=adata.var.index.tolist(),columns=adata.obs[Celltype].cat.categories)
-        for celltype in adata.obs[Celltype].cat.categories:
-            adata_sub = adata[adata.obs[Celltype].isin([celltype])]
-            random_indices = np.random.choice(adata_sub.shape[0], size=n_samples, replace=True)
-            adata_sub = adata_sub[random_indices, :]
-            x = torch.tensor(adata_sub.X.todense()).double()
-            x = x.unsqueeze(-1).to(device)
-            _,attn_weight = self.encoder.self(x, output_attentions=True)
-            attn_weight = attn_weight.detach().cpu().mean((0,1)).numpy()
-            attn_weight = attn_weight.mean(0)
-            outs[celltype] = attn_weight
+        for celltype_value in adata.obs[Celltype].cat.categories:
+            adata_Subs = adata[adata.obs[Celltype].isin([celltype_value])]
+            attn_weight_init = np.zeros((self.x_dims))
+            scdata = scRNADataset(adata_Subs)
+            dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
+            for x, _, _ in dataloader:
+                x = x.double().to(device)
+                _,attn_weight = self.encoder.self(x, output_attentions=True)
+                attn_weight = attn_weight.detach().cpu().mean((0,1)).numpy()
+                attn_weight_init += attn_weight.mean(0)
+            attn_weight_init /= len(dataloader)
+            outs[celltype_value] = attn_weight_init
         return outs
 
 class VAE_scTCR(nn.Module):
     """
-    VAE of scTCR
+    VAE for scRNA-seq data.
 
     Args:
-        x_dims (int): Input dimension.
         z_dims (int): Latent dimension.
-        batchs (int): Number of domains.
         aa_size (int): Size of the amino acid vocabulary.
         aa_dims (int): Dimensionality of amino acid embeddings.
         max_len (int): Maximum length of CDR3 sequences.
@@ -219,11 +247,11 @@ class VAE_scTCR(nn.Module):
         gene_dims (int): Dimensionality of gene embeddings.
         drop_prob (float): Dropout probability.
     """
-    def __init__(self, z_dims=32,
-                aa_size=21, aa_dims=32, max_len=30, 
+    def __init__(self, z_dims=128,
+                aa_size=21, aa_dims=64, max_len=30, 
                 bv_size=None, bj_size=None,
                 av_size=None, aj_size=None, 
-                gene_dims=32, drop_prob=0.1):
+                gene_dims=48, drop_prob=0.1):
         super().__init__()
         self.TCRencoder = encoder_scTCR(z_dims, aa_size, aa_dims, max_len, 
                                         bv_size, bj_size,av_size, aj_size, 
@@ -245,14 +273,14 @@ class VAE_scTCR(nn.Module):
     def _encode(self, dataloader, mode='latent', eval=True, device='cuda',
                     TCR_dict=None, temperature=1):
         """
-        Encode multi-omic data using the trained model.
+        Encode scTCR-seq data using the trained model.
 
         Args:
             dataloader (DataLoader): PyTorch DataLoader containing the input data.
             mode (str): Mode ('latent' or 'recon').
             eval (bool): Set to True for evaluation mode, False for training mode.
             device (str): Device to perform encoding ('cuda' or 'cpu').
-            TCR_dict (dict): Dictionary contain dictionary of mapping indices to tcr.
+            TCR_dict (dict): Dictionary containing a dictionary of mapping indices to TCR.
             temperature (float): Temperature for temperature scaling.
 
         Returns:
@@ -320,13 +348,14 @@ class VAE_scTCR(nn.Module):
         Train the VAE model.
 
         Args:
-            dataloader (DataLoader): PyTorch DataLoader containing the training data.
+            train_dataloader (DataLoader): PyTorch DataLoader containing the training data.
+            valid_dataloader (DataLoader): PyTorch DataLoader containing the validation data.
             lr (float): Learning rate for the optimizer.
             weight_decay (float): L2 regularization strength.
             max_epoch (int): Maximum number of training epochs.
             device (str): Device to perform training ('cuda' or 'cpu').
-            penalty (str): Way to penalty latents ('euclidean_distance', 'symmKL', 'mmd', or 'cosine_distance').
             patience (int): Number of epochs with no improvement to wait before early stopping.
+            outdir (str, optional): Output directory to save the model. Default is None.
             verbose (bool): If True, print training progress.
         """
         self.to(device)
@@ -409,7 +438,17 @@ class VAE_scTCR(nn.Module):
         epoch_loss = {key:value/(idx+1) for key, value in epoch_loss.items()}
         return sum(epoch_loss.values())
     
-    def aa_embed(self, tensor,device):
+    def aa_embed(self, tensor, device):
+        """
+        Embed amino acid.
+
+        Args:
+            tensor (Tensor): Input tensor of amino acid index.
+            device (str): Device to perform embedding ('cuda' or 'cpu').
+
+        Returns:
+            Embedded amino acid vector.
+        """
         self.to(device)
         self.eval()
         tensor = tensor.to(device)
@@ -418,6 +457,19 @@ class VAE_scTCR(nn.Module):
         return outs
         
     def aa_attn_weigth(self, adata, TCR_dict, batch_size, device='cuda'):
+        """
+        Compute attention weights for amino acid sequences.
+
+        Args:
+            adata (AnnData): Annotated Data object containing scTCR-seq data.
+            TCR_dict (dict): Dictionary containing information about TCR vocabulary.
+            batch_size (int): Batch size.
+            device (str): Device to perform computation ('cuda' or 'cpu').
+
+        Returns:
+            cdr3b_df (pandas.DataFrame): DataFrame containing attention weights for CDR3b.
+            cdr3a_df (pandas.DataFrame): DataFrame containing attention weights for CDR3a.
+        """
         self.to(device)
         self.eval()
         scdata = scTCRDataset(adata,TCR_dict=TCR_dict)
@@ -447,37 +499,37 @@ class VAE_scTCR(nn.Module):
         cdr3a_df = pd.DataFrame(cdr3a_attn_mean/ (idx+1), index=list(range(1, self.max_len+1)), columns=list(range(1, self.max_len+1)))
         return cdr3b_df, cdr3a_df
     
-    def tcr_attn_weigth(self, adata, Type, TCR_dict, batch_size, device='cuda'):
-        self.to(device)
-        self.eval()
-        cdr3b_df = pd.DataFrame(index=list(range(1, self.max_len+1)), columns=adata.obs[Type].cat.categories)
-        cdr3a_df = pd.DataFrame(index=list(range(1, self.max_len+1)), columns=adata.obs[Type].cat.categories)
-        for type in adata.obs[Type].cat.categories:
-            adata_sub = adata[adata.obs[Type].isin([type])]
-            scdata = scTCRDataset(adata_sub,TCR_dict=TCR_dict)
-            dataloader = DataLoaderX(scdata,  batch_size=batch_size, drop_last=False, shuffle=False, num_workers=8)
-            cdr3b_attn_mean = np.zeros((self.max_len, self.max_len))
-            cdr3a_attn_mean = np.zeros((self.max_len, self.max_len))
-            for idx, (tcr, _) in enumerate(dataloader):
-                tcr = tcr.long().to(device)
-                cdr3b = tcr[:, 2:(2 + self.max_len)]
-                cdr3a = tcr[:, (4 + self.max_len):]
-                attn_mask_b = (cdr3b == 0).clone().detach()
-                attn_mask_a = (cdr3a == 0).clone().detach()
+    # def tcr_attn_weigth(self, adata, Type, TCR_dict, batch_size, device='cuda'):
+    #     self.to(device)
+    #     self.eval()
+    #     cdr3b_df = pd.DataFrame(index=list(range(1, self.max_len+1)), columns=adata.obs[Type].cat.categories)
+    #     cdr3a_df = pd.DataFrame(index=list(range(1, self.max_len+1)), columns=adata.obs[Type].cat.categories)
+    #     for type in adata.obs[Type].cat.categories:
+    #         adata_sub = adata[adata.obs[Type].isin([type])]
+    #         scdata = scTCRDataset(adata_sub,TCR_dict=TCR_dict)
+    #         dataloader = DataLoaderX(scdata,  batch_size=batch_size, drop_last=False, shuffle=False, num_workers=8)
+    #         cdr3b_attn_mean = np.zeros((self.max_len, self.max_len))
+    #         cdr3a_attn_mean = np.zeros((self.max_len, self.max_len))
+    #         for idx, (tcr, _) in enumerate(dataloader):
+    #             tcr = tcr.long().to(device)
+    #             cdr3b = tcr[:, 2:(2 + self.max_len)]
+    #             cdr3a = tcr[:, (4 + self.max_len):]
+    #             attn_mask_b = (cdr3b == 0).clone().detach()
+    #             attn_mask_a = (cdr3a == 0).clone().detach()
                 
-                cdr3b, cdr3a = self.TCRencoder.aa_embedding(cdr3b), self.TCRencoder.aa_embedding(cdr3a)
-                _,attn_weight_b = self.TCRencoder.cdr3b_encode.self(cdr3b,cdr3b,cdr3b, 
-                                                                    attn_mask=None, key_padding_mask=attn_mask_b)
-                _,attn_weight_a = self.TCRencoder.cdr3a_encode.self(cdr3a,cdr3a,cdr3a, 
-                                                                    attn_mask=None, key_padding_mask=attn_mask_a)
+    #             cdr3b, cdr3a = self.TCRencoder.aa_embedding(cdr3b), self.TCRencoder.aa_embedding(cdr3a)
+    #             _,attn_weight_b = self.TCRencoder.cdr3b_encode.self(cdr3b,cdr3b,cdr3b, 
+    #                                                                 attn_mask=None, key_padding_mask=attn_mask_b)
+    #             _,attn_weight_a = self.TCRencoder.cdr3a_encode.self(cdr3a,cdr3a,cdr3a, 
+    #                                                                 attn_mask=None, key_padding_mask=attn_mask_a)
             
-                attn_weight_b = attn_weight_b.detach().cpu().numpy().mean(0)
-                attn_weight_a = attn_weight_a.detach().cpu().numpy().mean(0)
-                cdr3b_attn_mean += attn_weight_b
-                cdr3a_attn_mean += attn_weight_a
-            cdr3b_df[type] = cdr3b_attn_mean.mean(0) / (idx+1)
-            cdr3a_df[type] = cdr3a_attn_mean.mean(0) / (idx+1)
-        return cdr3b_df, cdr3a_df
+    #             attn_weight_b = attn_weight_b.detach().cpu().numpy().mean(0)
+    #             attn_weight_a = attn_weight_a.detach().cpu().numpy().mean(0)
+    #             cdr3b_attn_mean += attn_weight_b
+    #             cdr3a_attn_mean += attn_weight_a
+    #         cdr3b_df[type] = cdr3b_attn_mean.mean(0) / (idx+1)
+    #         cdr3a_df[type] = cdr3a_attn_mean.mean(0) / (idx+1)
+    #     return cdr3b_df, cdr3a_df
     
     def load_model(self, path):
         """
@@ -495,11 +547,12 @@ class VAE_scTCR(nn.Module):
         
 class VAE_Multi(nn.Module):
     """
-    VAE of Multi-omic
+    VAE for scRNA-seq and scTCR-seq data.
 
     Args:
         x_dims (int): Input dimension.
         z_dims (int): Latent dimension.
+        pooling_dims (int): Dimensionality of pooling layer.
         batchs (int): Number of domains.
         aa_size (int): Size of the amino acid vocabulary.
         aa_dims (int): Dimensionality of amino acid embeddings.
@@ -512,11 +565,11 @@ class VAE_Multi(nn.Module):
         drop_prob (float): Dropout probability.
     """
     def __init__(self, x_dims=2000, pooling_dims=16,
-                 z_dims=32, batchs=20,
-                aa_size=21, aa_dims=32, max_len=30, 
+                 z_dims=128, batchs=20,
+                aa_size=21, aa_dims=64, max_len=30, 
                 bv_size=None, bj_size=None,
                 av_size=None, aj_size=None, 
-                gene_dims=32, drop_prob=0.1,
+                gene_dims=48, drop_prob=0.1,
                 weights=None):
         super().__init__()
         self.RNAencoder = encoder_scRNA(x_dims, z_dims)
@@ -552,18 +605,6 @@ class VAE_Multi(nn.Module):
         
     def _encodeTCR(self, dataloader, mode='latent', eval=True, device='cuda',
                    TCR_dict=None, temperature=1):
-        """
-        Generate scRNA data by scTCR data using the trained model.
-
-        Args:
-            dataloader (DataLoader): PyTorch DataLoader containing the input data.
-            mode (str): Mode ('latent' or 'recon').
-            eval (bool): Set to True for evaluation mode, False for training mode.
-            device (str): Device to perform encoding ('cuda' or 'cpu').
-
-        Returns:
-            numpy.ndarray: Encoded scRNA data.
-        """
         self.to(device)
         if eval:
             self.eval()
@@ -608,20 +649,6 @@ class VAE_Multi(nn.Module):
         return outs
         
     def _encodeRNA(self, dataloader, mode='latent', eval=True, device='cuda'):
-        """
-        Generate scTCR data by scRNA data using the trained model.
-
-        Args:
-            dataloader (DataLoader): PyTorch DataLoader containing the input data.
-            mode (str): Mode ('latent' or 'recon').
-            eval (bool): Set to True for evaluation mode, False for training mode.
-            device (str): Device to perform encoding ('cuda' or 'cpu').
-            TCR_dict (dict): Dictionary contain dictionary of mapping indices to tcr.
-            temperature (float): Temperature for temperature scaling.
-
-        Returns:
-            numpy.ndarray or pandas.DataFrame: Encoded scTCR data..
-        """
         self.to(device)
         if eval:
             self.eval()
@@ -648,7 +675,7 @@ class VAE_Multi(nn.Module):
     def _encodeMulti(self, dataloader, mode='latent', eval=True, device='cuda',
                     TCR_dict=None, temperature=1):
         """
-        Encode multi-omic data using the trained model.
+        Encode scRNA-seq and scTCR-seq data using the trained model.
 
         Args:
             dataloader (DataLoader): PyTorch DataLoader containing the input data.
@@ -731,21 +758,22 @@ class VAE_Multi(nn.Module):
      
     def fit(self, train_dataloader,  valid_dataloader,
               lr=1e-4, weight_decay=1e-3,
-              max_epoch=500,  device='cuda', 
+              max_epoch=400,  device='cuda', 
               penalty='mmd_rbf',
-              patience=20, warmup=50 ,
+              patience=40, warmup=40 ,
               outdir=None, verbose=False,
               pretrain=None):
         """
         Train the VAE model.
 
         Args:
-            dataloader (DataLoader): PyTorch DataLoader containing the training data.
+            train_dataloader (DataLoader): PyTorch DataLoader containing the training data.
+            valid_dataloader (DataLoader): PyTorch DataLoader containing the validation data.
             lr (float): Learning rate for the optimizer.
             weight_decay (float): L2 regularization strength.
             max_epoch (int): Maximum number of training epochs.
             device (str): Device to perform training ('cuda' or 'cpu').
-            penalty (str): Way to penalty latents ('euclidean_distance', 'symmKL', 'mmd', or 'cosine_distance').
+            penalty (str): Way to penalty latents ('euclidean_distance', 'symmKL' or 'euclidean_dist').
             patience (int): Number of epochs with no improvement to wait before early stopping.
             verbose (bool): If True, print training progress.
         """
@@ -917,40 +945,35 @@ class VAE_Multi(nn.Module):
     def gene_attn_weigth(self, adata, n_samples=64, device='cuda'):
         self.to(device)
         self.eval()
-        iters = adata.shape[0]//n_samples
         attn_weight_init = np.zeros((self.x_dims, self.x_dims))
-        for i in range(iters):
-            #random_indices = np.random.choice(adata.shape[0], size=n_samples, replace=False)
-            adata_sub = adata[(n_samples*i):(n_samples*(i+1)), :]
-            x = torch.tensor(adata_sub.X.todense()).double()
-            x = x.unsqueeze(-1).to(device)
+        scdata = scRNADataset(adata)
+        dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
+        for x, _, _ in dataloader:
+            x = x.double().to(device)
             _,attn_weight = self.RNAencoder.self(x, output_attentions=True)
             attn_weight = attn_weight.detach().cpu()
             attn_weight = attn_weight.mean((0,1)).numpy()
             attn_weight_init += attn_weight
-        attn_weight_init /= iters
+        attn_weight_init /= len(dataloader)
         np.fill_diagonal(attn_weight_init, 0)
         return pd.DataFrame(attn_weight_init,index=adata.var.index.tolist(),columns=adata.var.index.tolist())
     
-    def celltype_attn_weigth(self, adata, Celltype, n_samples=128, device='cuda'):
+    def celltype_attn_weigth(self, adata, Celltype, n_samples=64, device='cuda'):
         self.to(device)
         self.eval()
         outs = pd.DataFrame(index=adata.var.index.tolist(),columns=adata.obs[Celltype].cat.categories)
-        # iters = n_samples//64
-        for celltype in adata.obs[Celltype].cat.categories:
-            adata_Subs = adata[adata.obs[Celltype].isin([celltype])]
-            iters = adata_Subs.shape[0]//n_samples
+        for celltype_value in adata.obs[Celltype].cat.categories:
+            adata_Subs = adata[adata.obs[Celltype].isin([celltype_value])]
             attn_weight_init = np.zeros((self.x_dims))
-            for i in range(iters):
-                # random_indices = np.random.choice(adata_Subs.shape[0], size=64, replace=True)
-                adata_sub = adata_Subs[(n_samples*i):(n_samples*(i+1)), :]
-                x = torch.tensor(adata_sub.X.todense()).double()
-                x = x.unsqueeze(-1).to(device)
+            scdata = scRNADataset(adata_Subs)
+            dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
+            for x, _, _ in dataloader:
+                x = x.double().to(device)
                 _,attn_weight = self.RNAencoder.self(x, output_attentions=True)
                 attn_weight = attn_weight.detach().cpu().mean((0,1)).numpy()
                 attn_weight_init += attn_weight.mean(0)
-            attn_weight_init /= iters
-            outs[celltype] = attn_weight_init
+            attn_weight_init /= len(dataloader)
+            outs[celltype_value] = attn_weight_init
         return outs
     
     def aa_attn_weigth(self, adata, TCR_dict, batch_size, device='cuda'):
