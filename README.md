@@ -31,6 +31,13 @@ Usage
 from mist import MIST
 adata, model = MIST(rna_path, tcr_path, batch, rna_data_type, tcr_data_type, type)
 ```
+Output contains an Anndata object of preprocessed data and trained model.
+```rna_path``` List of paths to scRNA-seq data files.
+```tcr_path``` List of paths to scTCR-seq data files.
+```batch``` List of batch labels.
+```rna_data_type``` Type of scRNA-seq data file (e.g., 'h5ad').
+```tcr_data_type``` Type of scTCR-seq data file (e.g., '10X').
+```type``` Type of model to train ('multi', 'rna', or 'tcr').
 
 ### 2. Command line
 ```bash
@@ -45,10 +52,10 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 - **--rna_path**<br />Paths to scRNA-seq data files.
 - **--tcr_path**<br />Paths to scTCR-seq data files.
 - **--batch**<br />Batch labels.
-- **--rna_data_type**<br />Type of scRNA-seq data file (e.g., h5ad).
-- **--tcr_data_type**<br />Type of scTCR-seq data file (e.g., '10X').
+- **--rna_data_type**<br />Type of scRNA-seq data file.
+- **--tcr_data_type**<br />Type of scTCR-seq data file.
 - **--protein_path**<br />Path to merged protein (ADT) data file.
-- **--type**<br />Type of model to train ('multi', 'rna', or 'tcr').
+- **--type**<br />Type of model to train.
 - **--min_genes**<br />Filtered out cells that are detected in less than min_genes. Default: 600.
 - **--min_cells**<br />Filtered out genes that are detected in less than min_cells. Default: 3.
 - **--pct_mt**<br />Filtered out cells that are detected in more than percentage of mitochondrial genes. If None, Filtered out mitochondrial genes. Default: None.
