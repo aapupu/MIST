@@ -31,12 +31,12 @@ Usage
 from mist import MIST
 adata, model = MIST(rna_path, tcr_path, batch, rna_data_type, tcr_data_type, type)
 ```
-Output contains an Anndata object of preprocessed data and trained model.
-```rna_path``` List of paths to scRNA-seq data files.
-```tcr_path``` List of paths to scTCR-seq data files.
-```batch``` List of batch labels.
-```rna_data_type``` Type of scRNA-seq data file (e.g., 'h5ad').
-```tcr_data_type``` Type of scTCR-seq data file (e.g., '10X').
+Output contains an Anndata object of preprocessed data and trained model.<br />
+```rna_path``` List of paths to scRNA-seq data files.<br />
+```tcr_path``` List of paths to scTCR-seq data files.<br />
+```batch``` List of batch labels.<br />
+```rna_data_type``` Type of scRNA-seq data file (e.g., 'h5ad').<br />
+```tcr_data_type``` Type of scTCR-seq data file (e.g., '10X').<br />
 ```type``` Type of model to train ('multi', 'rna', or 'tcr').
 
 ### 2. Command line
