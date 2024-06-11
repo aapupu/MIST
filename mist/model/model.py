@@ -174,7 +174,7 @@ class VAE_scRNA(nn.Module):
                 state_dict2[key] = state_dict1[key]
         self.load_state_dict(state_dict2)
 
-    def gene_attn_weigth(self, adata, n_samples=64, device='cuda'):
+    def gene_attn_weight(self, adata, n_samples=64, device='cuda'):
         """
         Compute gene-gene attention weights.
 
@@ -201,7 +201,7 @@ class VAE_scRNA(nn.Module):
         np.fill_diagonal(attn_weight_init, 0)
         return pd.DataFrame(attn_weight_init,index=adata.var.index.tolist(),columns=adata.var.index.tolist())
     
-    def celltype_attn_weigth(self, adata, Celltype, n_samples=64, device='cuda'):
+    def celltype_attn_weight(self, adata, Celltype, n_samples=64, device='cuda'):
         """
         Compute gene-celltype attention weights.
 
@@ -456,7 +456,7 @@ class VAE_scTCR(nn.Module):
         outs = outs.detach().squeeze(0).cpu().numpy()
         return outs
         
-    def aa_attn_weigth(self, adata, TCR_dict, batch_size, device='cuda'):
+    def aa_attn_weight(self, adata, TCR_dict, batch_size, device='cuda'):
         """
         Compute attention weights for amino acid sequences.
 
@@ -499,7 +499,7 @@ class VAE_scTCR(nn.Module):
         cdr3a_df = pd.DataFrame(cdr3a_attn_mean/ (idx+1), index=list(range(1, self.max_len+1)), columns=list(range(1, self.max_len+1)))
         return cdr3b_df, cdr3a_df
     
-    # def tcr_attn_weigth(self, adata, Type, TCR_dict, batch_size, device='cuda'):
+    # def tcr_attn_weight(self, adata, Type, TCR_dict, batch_size, device='cuda'):
     #     self.to(device)
     #     self.eval()
     #     cdr3b_df = pd.DataFrame(index=list(range(1, self.max_len+1)), columns=adata.obs[Type].cat.categories)
@@ -942,7 +942,7 @@ class VAE_Multi(nn.Module):
                 state_dict2[key] = state_dict1[key]
         self.load_state_dict(state_dict2)
         
-    def gene_attn_weigth(self, adata, n_samples=64, device='cuda'):
+    def gene_attn_weight(self, adata, n_samples=64, device='cuda'):
         self.to(device)
         self.eval()
         attn_weight_init = np.zeros((self.x_dims, self.x_dims))
@@ -958,7 +958,7 @@ class VAE_Multi(nn.Module):
         np.fill_diagonal(attn_weight_init, 0)
         return pd.DataFrame(attn_weight_init,index=adata.var.index.tolist(),columns=adata.var.index.tolist())
     
-    def celltype_attn_weigth(self, adata, Celltype, n_samples=64, device='cuda'):
+    def celltype_attn_weight(self, adata, Celltype, n_samples=64, device='cuda'):
         self.to(device)
         self.eval()
         outs = pd.DataFrame(index=adata.var.index.tolist(),columns=adata.obs[Celltype].cat.categories)
@@ -976,7 +976,7 @@ class VAE_Multi(nn.Module):
             outs[celltype_value] = attn_weight_init
         return outs
     
-    def aa_attn_weigth(self, adata, TCR_dict, batch_size, device='cuda'):
+    def aa_attn_weight(self, adata, TCR_dict, batch_size, device='cuda'):
         self.to(device)
         self.eval()
         scdata = scTCRDataset(adata,TCR_dict=TCR_dict)
