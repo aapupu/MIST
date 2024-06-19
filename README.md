@@ -1,5 +1,5 @@
-# Multi-InSight for T-cell（MIST）
-MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight
+# MIST (Multi-InSight for T-cell)
+MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis
 
 <div align=center><img  height="600" src=https://github.com/aapupu/MIST/blob/main/docs/MIST.jpg><div align=left>
 
@@ -31,7 +31,8 @@ Usage
 from mist import MIST
 adata, model = MIST(rna_path, tcr_path, batch, rna_data_type, tcr_data_type, type)
 ```
-Output contains an Anndata object of preprocessed data and trained model.<br />
+Parameters of API function are similar to command line options.<br />
+The output includes a trained model and an Anndata object, which can be further analyzed using scanpy and scirpy.<br />
 ```rna_path``` List of paths to scRNA-seq data files.<br />
 ```tcr_path``` List of paths to scTCR-seq data files.<br />
 ```batch``` List of batch labels.<br />
