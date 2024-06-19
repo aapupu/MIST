@@ -1,4 +1,4 @@
-# MIST (Multi-InSight for T-cell)
+# MIST (Multi-InSight for T cell)
 MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis
 
 <div align=center><img  height="600" src=https://github.com/aapupu/MIST/blob/main/docs/MIST.jpg><div align=left>
