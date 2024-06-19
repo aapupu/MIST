@@ -8,7 +8,7 @@ version = "1.0.0"
 authors = [
   { name="Lai Wenpu", email="kyzy850520@163.com" },
 ]
-description = "MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight"
+description = "MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.7"

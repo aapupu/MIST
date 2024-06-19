@@ -2,7 +2,7 @@
 import argparse
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='MIST: Deep Learning Integration of Single-Cell RNA and TCR Sequencing Data for T-Cell Insight')
+    parser = argparse.ArgumentParser(description='MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis')
     
     parser.add_argument('--rna_path', '-r', type=str, nargs='*', default=None)
     parser.add_argument('--tcr_path', '-t', type=str, nargs='*', default=None)
