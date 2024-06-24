@@ -77,7 +77,7 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 #### Help
 Explore further applications of MIST
 ```bash
-MIST.py --help 
+MIST --help 
 ```
 
 Citation
