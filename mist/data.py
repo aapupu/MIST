@@ -208,7 +208,7 @@ def load_data(rna_path=None,
             rna_data_type=None,
             tcr_data_type=None,
             protein_path=None,
-            type='multi',         
+            type='joint',         
             min_genes=600, 
             min_cells=3, 
             pct_mt=None,
@@ -250,7 +250,7 @@ def load_data(rna_path=None,
     else:
         protein = None
         
-    assert type in ['rna', 'tcr', 'multi'], 'type must in rna, tcr or multi.'
+    assert type in ['rna', 'tcr', 'joint'], 'type must in rna, tcr or joint.'
     if type == 'rna':
         adata = process_scRNA(adata, 
                         min_genes=min_genes, 
@@ -275,7 +275,7 @@ def load_data(rna_path=None,
                             scirpy=scirpy)
         scdata = scTCRDataset(adata,TCR_dict)
         
-    elif type == 'multi':
+    elif type == 'joint':
         adata = process_multimode(adata, 
                             adata_tcr=adata_tcr, 
                             max_len=max_len,
@@ -303,7 +303,7 @@ def load_data(rna_path=None,
                             drop_last=True, shuffle=True, num_workers=num_workers, pin_memory=True)
     testloader = DataLoaderX(scdata,  batch_size=batch_size, 
                             drop_last=False, shuffle=False, num_workers=num_workers, pin_memory=True)
-    if type == 'multi':
+    if type == 'joint':
         rna_testdataloder = DataLoaderX(rna_scdata, batch_size=batch_size, 
                                     drop_last=False, shuffle=False, num_workers=num_workers, pin_memory=True)
         tcr_testdataloder = DataLoaderX(tcr_scdata, batch_size=batch_size, 

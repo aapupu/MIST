@@ -21,7 +21,7 @@ def MIST(rna_path:List[str]=None,
     rna_data_type:str='h5ad',
     tcr_data_type:str='10X',
     protein_path:str=None,
-    type:str='multi',         
+    type:str='joint',         
     min_genes:int=600, 
     min_cells:int=3, 
     pct_mt:int=None,
@@ -60,7 +60,7 @@ def MIST(rna_path:List[str]=None,
     - rna_data_type (str): Type of scRNA-seq data file (e.g., 'h5ad').
     - tcr_data_type (str): Type of scTCR-seq data file (e.g., '10X').
     - protein_path (str): Path to merged protein (ADT) data file.
-    - type (str): Type of model to train ('multi', 'rna', or 'tcr').
+    - type (str): Type of model to train ('joint', 'rna', or 'tcr').
     - min_genes (int): Filtered out cells that are detected in less than min_genes. Default: 600.
     - min_cells (int): Filtered out genes that are detected in less than min_cells. Default: 3.
     - pct_mt (int): Filtered out cells that are detected in more than percentage of mitochondrial genes. If None, Filtered out mitochondrial genes. Default: None.
@@ -124,6 +124,7 @@ def MIST(rna_path:List[str]=None,
                                 num_workers=num_workers
                                 )
     print('Model training')
+    # rna
     if type == 'rna':
         model = VAE_scRNA(x_dims=adata.shape[1], z_dims=pooling_dims,
                           batchs=len(adata.obs['batch'].cat.categories)).double()
@@ -132,6 +133,7 @@ def MIST(rna_path:List[str]=None,
                 lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, 
                 patience=patience, outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
         
+    # tcr    
     elif type == 'tcr':
         model = VAE_scTCR(z_dims=z_dims, aa_size=21, aa_dims=aa_dims, max_len=max_len, 
                bv_size=len(TCR_dict['TRBV']), bj_size=len(TCR_dict['TRBJ']),
@@ -142,7 +144,8 @@ def MIST(rna_path:List[str]=None,
           lr=lr, weight_decay=weight_decay, max_epoch=max_epoch, device=device, patience=patience, 
           outdir=os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
         
-    elif type == 'multi':
+    # joint    
+    elif type == 'joint':
         model = VAE_Multi(x_dims=adata.shape[1], pooling_dims=pooling_dims,
                     z_dims=z_dims, batchs=len(adata.obs['batch'].cat.categories),
                     aa_size=21, aa_dims=aa_dims, max_len=max_len, 
@@ -157,27 +160,27 @@ def MIST(rna_path:List[str]=None,
 
     model.load_model(os.path.join(outdir, 'model.pt') if outdir else 'model.pt')
     print('Encode latent')
-    if type == 'multi':
-        # multi
+    if type == 'joint':
+        # joint
         adata.obsm['latent_joint'] = model._encodeMulti(dataloader_tuple[2], mode='latent', eval=True, 
                                                       device=device, TCR_dict=TCR_dict, temperature=1)
-        pca_multi = PCA(n_components=15, random_state=seed)
-        adata.obsm['latent_joint_pca']=pca_multi.fit_transform(adata.obsm['latent_joint'])
+        pca_joint = PCA(n_components=15, random_state=seed)
+        adata.obsm['latent_joint_pca'] = pca_joint.fit_transform(adata.obsm['latent_joint'])
         
         # rna
         adata.obsm['latent_gex'] = model._encodeRNA(dataloader_tuple[3], mode='latent', eval=True, device=device)
         pca_rna = PCA(n_components=15, random_state=seed)
-        adata.obsm['latent_gex_pca']=pca_rna.fit_transform(adata.obsm['latent_gex'])
+        adata.obsm['latent_gex_pca'] = pca_rna.fit_transform(adata.obsm['latent_gex'])
         
-        #tcr
+        # tcr
         adata.obsm['latent_tcr'] = model._encodeTCR(dataloader_tuple[4], mode='latent', eval=True, device=device,
                                                         TCR_dict=TCR_dict, temperature=1)
         pca_tcr = PCA(n_components=15, random_state=seed)
-        adata.obsm['latent_tcr_pca']=pca_tcr.fit_transform(adata.obsm['latent_tcr'])
+        adata.obsm['latent_tcr_pca'] = pca_tcr.fit_transform(adata.obsm['latent_tcr'])
         
         print('Clustering')
         neighbors_umap(adata, use_rep='latent_joint_pca', n_pcs=None, key_added='joint')
-        sc.tl.leiden(adata, resolution=1.0, neighbors_key='joint',key_added='joint_cluster')
+        sc.tl.leiden(adata, resolution=1.0, neighbors_key='joint', key_added='joint_cluster')
         neighbors_umap(adata, use_rep='latent_gex_pca', n_pcs=None, key_added='gex')
         sc.tl.leiden(adata, resolution=1.0, neighbors_key='gex', key_added='gex_cluster')
         neighbors_umap(adata, use_rep='latent_tcr_pca', n_pcs=None, key_added='tcr')
