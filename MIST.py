@@ -15,7 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('--min_genes', type=int, default=600, help='Filtered out cells that are detected in less than min_genes. Default: 600')
     parser.add_argument('--min_cells', type=int, default=3, help='Filtered out genes that are detected in less than min_cells. Default: 3')
     parser.add_argument('--pct_mt', type=int, default=None, help='Filtered out cells that are detected in more than percentage of mitochondrial genes. If None, Filtered out mitochondrial genes. Default: None')
-    parser.add_argument('--n_top_features', default=2000, help='Number of highly-variable genes to keep. Default: 2000')
+    parser.add_argument('--n_top_genes', default=2000, help='Number of highly-variable genes to keep. Default: 2000')
     parser.add_argument('--backed', action='store_true', default=False, help='Whether to use backed format for reading data. Default: False')
     parser.add_argument('--batch_scale', action='store_true', default=False, help='Whether to data scale pre batch. Default: False')
     parser.add_argument('--batch_min', type=int, default=0, help='Filtered out batch that are detected in less than cells. Default: 0')
