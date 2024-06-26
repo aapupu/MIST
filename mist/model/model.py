@@ -74,10 +74,8 @@ class VAE_scRNA(nn.Module):
                 outs[index] = z.detach().cpu().numpy()
         elif mode == 'recon':
             outs = np.zeros((dataloader.dataset.shape[0], self.x_dims))
-            
             for x, domain_label, index in dataloader:
                 x = x.double().to(device)
-                domain_label = domain_label.to(device)
                 z, _, _ = self.encoder(x)
                 recon_x = self.decoder(z, domain_label).detach().cpu().numpy()
                 outs[index] = recon_x
@@ -622,7 +620,6 @@ class VAE_Multi(nn.Module):
                 outs[index] = zT.detach().cpu().numpy()
                 
         elif mode == 'recon':
-            outs = np.zeros((dataloader.dataset.shape[0], self.x_dims))
             outs = pd.DataFrame()
             for tcr, index in dataloader:
                 tcr = tcr.long().to(device)
@@ -662,13 +659,13 @@ class VAE_Multi(nn.Module):
                 x = x.double().to(device)
                 zR,_,_ = self.RNAencoder(x)
                 outs[index] = zR.detach().cpu().numpy()
+                
         elif mode == 'recon':
-            outs = pd.DataFrame()
             outs = np.zeros((dataloader.dataset.shape[0], self.x_dims))
-            for x, _, index in dataloader:
+            for x, domain_label, index in dataloader:
                 x = x.double().to(device)
                 zR, _, _ = self.RNAencoder(x) 
-                recon_scRNA = self.RNAdecoder(zR,domain_label=None).detach().cpu().numpy()
+                recon_scRNA = self.RNAdecoder(zR,domain_label=domain_label).detach().cpu().numpy()
                 outs[index] = recon_scRNA
         return outs       
         
