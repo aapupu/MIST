@@ -22,7 +22,7 @@ cd MIST
 pip install -e .
 ```
 
-**Note: Python 3.8 is recommended.MIST is implemented in Pytorch framework. If cuda is available, GPU modes will be run automatically.**
+**Note: Python 3.8 is recommended. MIST is implemented in Pytorch framework. If cuda is available, GPU modes will be run automatically.**
 
 Usage
 -------
