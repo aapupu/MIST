@@ -265,7 +265,7 @@ def load_data(rna_path=None,
                         batch_min=batch_min,
                         remove_TCRGene=remove_TCRGene)
         sc.tl.pca(adata, svd_solver='arpack')
-        neighbors_umap(adata, use_rep='pca', n_pcs=20, key_added='raw')
+        neighbors_umap(adata, use_rep='X_pca', n_pcs=20, key_added='raw')
         scdata = scRNADataset(adata)
         
     elif type == 'tcr':
@@ -291,7 +291,7 @@ def load_data(rna_path=None,
                             batch_min=batch_min,
                             remove_TCRGene=remove_TCRGene)
         sc.tl.pca(adata, svd_solver='arpack')
-        neighbors_umap(adata, use_rep='pca', n_pcs=20, key_added='raw')
+        neighbors_umap(adata, use_rep='X_pca', n_pcs=20, key_added='raw')
         scdata = MultiDataset(adata,TCR_dict)
         rna_scdata = scRNADataset(adata)
         tcr_scdata = scTCRDataset(adata, TCR_dict)
