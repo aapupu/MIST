@@ -121,7 +121,7 @@ def process_scRNA(
         
     print('Finding HVG and maxabs scaling')
     if type(n_top_genes) == int:
-        sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, batch_key='batch',inplace=False, subset=True)
+        sc.pp.highly_variable_genes(adata, n_top_genes=n_top_genes, batch_key='batch',inplace=True, subset=False)
         adata = adata[:, adata.var.highly_variable]
     elif type(n_top_genes) == list:
         genes_list = [g for g in n_top_genes if g in adata.var_names]
