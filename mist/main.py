@@ -31,9 +31,9 @@ def main():
     parser.add_argument('--drop_prob', type=float, default=0.1, help=' Dropout probability. Default: 0.1')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate. Default: 1e-4')
     parser.add_argument('--weight_decay', type=float, default=1e-3, help=' Weight decay. Default: 1e-3')
-    parser.add_argument('--max_epoch', type=int, default=400, help='Maximum number of epochs. Default: 400')
-    parser.add_argument('--patience', type=int, default=40, help='Patience for early stopping. Default: 40')
-    parser.add_argument('--warmup', type=int, default=40, help='Warmup epochs. Default: 40')
+    parser.add_argument('--max_epoch', type=int, default=300, help='Maximum number of epochs. Default: 300')
+    parser.add_argument('--patience', type=int, default=30, help='Patience for early stopping. Default: 30')
+    parser.add_argument('--warmup', type=int, default=30, help='Warmup epochs. Default: 30')
     parser.add_argument('--penalty', type=str, default='mmd_rbf', help='Type of penalty loss. Default: mmd_rbf')
     
     parser.add_argument('--gpu', type=int, default=0, help='Index of GPU to use if GPU is available. Default: 0')

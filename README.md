@@ -67,9 +67,9 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 - **--drop_prob**<br />Dropout probability. Default: 0.1
 - **--lr**<br />Learning rate for the optimizer. Default: 1e-4
 - **--weight_decay**<br />L2 regularization strength. Default: 1e-3
-- **--max_epoch**<br />Maximum number of epochs. Default: 400
-- **--patience**<br />Patience for early stopping. Default: 40
-- **--warmup**<br />Warmup epochs. Default: 40
+- **--max_epoch**<br />Maximum number of epochs. Default: 300
+- **--patience**<br />Patience for early stopping. Default: 30
+- **--warmup**<br />Warmup epochs. Default: 30
 - **--gpu**<br />Index of GPU to use if GPU is available. Default: 0
 - **--seed**<br />Random seed. Default: 42
 - **--outdir**<br />Output directory.

@@ -42,9 +42,9 @@ def MIST(rna_path:List[str]=None,
     weights:bool=False,
     lr:float=1e-4,
     weight_decay:float=1e-3,
-    max_epoch:int=400, 
-    patience:int=40, 
-    warmup:int=40,
+    max_epoch:int=300, 
+    patience:int=30, 
+    warmup:int=30,
     penalty:str='mmd_rbf',
     gpu:int=0, 
     seed:int=42,
@@ -81,9 +81,9 @@ def MIST(rna_path:List[str]=None,
     - weights (bool): Whether to use weighted two mode latent space embedding. Default: False.
     - lr (float): Learning rate. Default: 1e-4.
     - weight_decay (float): Weight decay. Default: 1e-3.
-    - max_epoch (int): Maximum number of epochs. Default: 400.
-    - patience (int): Patience for early stopping. Default: 40.
-    - warmup (int): Warmup epochs. Default: 40.
+    - max_epoch (int): Maximum number of epochs. Default: 300.
+    - patience (int): Patience for early stopping. Default: 30.
+    - warmup (int): Warmup epochs. Default: 30.
     - penalty (str): Type of penalty loss. Default: 'mmd_rbf'.
     - gpu (int): Index of GPU to use if GPU is available. Default: 0.
     - seed (int): Random seed.

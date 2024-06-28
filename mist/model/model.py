@@ -755,9 +755,9 @@ class VAE_Multi(nn.Module):
      
     def fit(self, train_dataloader,  valid_dataloader,
               lr=1e-4, weight_decay=1e-3,
-              max_epoch=400,  device='cuda', 
+              max_epoch=300,  device='cuda', 
               penalty='mmd_rbf',
-              patience=40, warmup=40 ,
+              patience=30, warmup=30 ,
               outdir=None, verbose=False,
               pretrain=None):
         """
