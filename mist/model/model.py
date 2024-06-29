@@ -714,7 +714,7 @@ class VAE_Multi(nn.Module):
             outs_scRNA = np.zeros((dataloader.dataset.shape[0], self.x_dims))
             outs_scTCR = pd.DataFrame()
             
-            for rna, domain_label, index, bv, bj, cdr3b, av, aj, cdr3a in dataloader:
+            for rna, tcr, domain_label, index in dataloader:
                 rna = rna.double().to(device)
                 domain_label = domain_label().to(device)
                 tcr = tcr.long().to(device)
