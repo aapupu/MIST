@@ -79,6 +79,7 @@ Explore further applications of MIST
 ```bash
 MIST.py --help 
 ```
+The running examples of MIST can be found in the jupyter folder.
 
 Citation
 -------
@@ -86,4 +87,5 @@ Citation
 
 Contacts
 -------
-kyzy850520@163.com
+kyzy850520@163.com<br />
+luojh@jnu.edu.cn
