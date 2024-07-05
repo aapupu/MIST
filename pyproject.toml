@@ -36,6 +36,7 @@ dependencies = [
     "tqdm>=4.64.1",
     "prefetch_generator>=1.0.3",
     "local-attention>=1.5.7",
+    "leidenalg>=0.10.2"
 ]
 
 [tool.setuptools]
