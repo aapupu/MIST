@@ -947,7 +947,7 @@ class VAE_Multi(nn.Module):
         dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
         for x, _, _ in dataloader:
             x = x.double().to(device)
-            _,attn_weight = self.RNAencoder.self(x, output_attentions=True)
+            _,attn_weight = self.RNAencoder.self(x.unsqueeze(-1), output_attentions=True)
             attn_weight = attn_weight.detach().cpu()
             attn_weight = attn_weight.mean((0,1)).numpy()
             attn_weight_init += attn_weight
@@ -966,7 +966,7 @@ class VAE_Multi(nn.Module):
             dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
             for x, _, _ in dataloader:
                 x = x.double().to(device)
-                _,attn_weight = self.RNAencoder.self(x, output_attentions=True)
+                _,attn_weight = self.RNAencoder.self(x.unsqueeze(-1), output_attentions=True)
                 attn_weight = attn_weight.detach().cpu().mean((0,1)).numpy()
                 attn_weight_init += attn_weight.mean(0)
             attn_weight_init /= len(dataloader)
