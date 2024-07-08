@@ -45,5 +45,5 @@ MIST = "mist.main:main"
 [project.urls]
 "Homepage" = "https://github.com/aapupu/MIST"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/foo"]
+[tool.hatch.build]
+sources = ["mist"]
