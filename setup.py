@@ -50,6 +50,6 @@ setup(
         'Homepage': 'https://github.com/aapupu/MIST',
     },
     package_data={
-        '': ['doc/**'],
+        '': ['doc/*.jpg'],
     },
 )
