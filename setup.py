@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mist-tcr',
-    version='1.0.0',
+    version='1.0.1',
     author='Lai Wenpu',
     author_email='kyzy850520@163.com',
     description='MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis',
