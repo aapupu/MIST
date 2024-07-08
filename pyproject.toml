@@ -39,11 +39,8 @@ dependencies = [
     "leidenalg>=0.10.2"
 ]
 
-[tool.setuptools]
-package-data = { "mist" = ["doc/*.csv"] }
-
-[tool.setuptools.packages.find]
-where = ["mist"]
+# [tool.setuptools.packages.find]
+# where = ["mist"]
 
 [project.scripts]
 MIST = "mist.main:main"
