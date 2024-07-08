@@ -4,7 +4,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 setup(
-    name='mist-tcr',
+    name='mist-vae',
     version='1.0.1',
     author='Lai Wenpu',
     author_email='kyzy850520@163.com',
