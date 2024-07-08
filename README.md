@@ -83,7 +83,9 @@ The running examples of MIST can be found in the jupyter folder.
 
 Citation
 -------
-**MIST**
+**MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis**
+Wenpu Lai, Yangqiu Li, Oscar Junhong Luo
+bioRxiv 2024.07.05.602192; doi: https://doi.org/10.1101/2024.07.05.602192 
 
 Contacts
 -------
