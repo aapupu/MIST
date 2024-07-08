@@ -13,9 +13,6 @@ on:
     types:
       - created
       
-permissions:
-  contents: read
-
 jobs:
   publish:
 
