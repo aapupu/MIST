@@ -43,7 +43,7 @@ dependencies = [
 MIST = "mist.main:main"
 
 [tool.setuptools]
-package-data = { "mist" = ["doc/**"] }
+package-data = { "mist" = ["doc/*.csv"] }
 
 [tool.setuptools.packages.find]
 where = ["mist"]
