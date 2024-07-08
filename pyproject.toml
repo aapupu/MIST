@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mist"
+name = "mist-tcr"
 version = "1.0.0"
 authors = [
   { name="Lai Wenpu", email="kyzy850520@163.com" },
@@ -49,4 +49,4 @@ MIST = "mist.main:main"
 "Homepage" = "https://github.com/aapupu/MIST"
 
 [tool.hatch.build.targets.wheel]
-packages = ["mist"]
+packages = ["MIST/mist"]
