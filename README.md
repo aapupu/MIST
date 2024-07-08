@@ -7,7 +7,7 @@ Installation
 -------
 ### Install from PyPI
 ```bash
-pip install mist
+pip install mist-tcr
 ```
 
 ### Install from GitHub
