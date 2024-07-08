@@ -39,9 +39,6 @@ dependencies = [
     "leidenalg>=0.10.2"
 ]
 
-# [tool.setuptools.packages.find]
-# where = ["mist"]
-
 [project.scripts]
 MIST = "mist.main:main"
 
@@ -49,4 +46,4 @@ MIST = "mist.main:main"
 "Homepage" = "https://github.com/aapupu/MIST"
 
 [tool.hatch.build.targets.wheel]
-packages = ["MIST/mist"]
+packages = ["mist"]
