@@ -49,7 +49,4 @@ setup(
     project_urls={
         'Homepage': 'https://github.com/aapupu/MIST',
     },
-    package_data={
-        '': ['doc/*.jpg'],
-    },
 )
