@@ -42,11 +42,17 @@ dependencies = [
 [project.scripts]
 MIST = "mist.main:main"
 
+[tool.setuptools]
+package-data = { "mist" = ["doc/*.csv"] }
+
+[tool.setuptools.packages.find]
+where = ["mist"]
+
 [project.urls]
 "Homepage" = "https://github.com/aapupu/MIST"
 
-[tool.hatch.build.targets.wheel]
-ignore-vcs = true
-include = [
-  "mist/**"
-]
+# [tool.hatch.build.targets.wheel]
+# ignore-vcs = true
+# include = [
+#   "mist/**"
+# ]
