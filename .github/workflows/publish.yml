@@ -10,13 +10,14 @@ name: publish
 
 on:
   release:
-    types: [published]
-
+    types:
+      - created
+      
 permissions:
   contents: read
 
 jobs:
-  deploy:
+  publish:
 
     runs-on: ubuntu-latest
 
