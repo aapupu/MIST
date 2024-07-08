@@ -1,12 +1,15 @@
 from setuptools import setup, find_packages
 
+with open('README.md', 'r', encoding='utf-8') as fh:
+    long_description = fh.read()
+
 setup(
     name='mist-tcr',
     version='1.0.1',
     author='Lai Wenpu',
     author_email='kyzy850520@163.com',
     description='MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis',
-    long_description=open('README.md').read(),
+    long_description=long_description,
     long_description_content_type='text/markdown',
     license='GPLv3',
     license_files=('LICENSE',),
@@ -45,5 +48,8 @@ setup(
     },
     project_urls={
         'Homepage': 'https://github.com/aapupu/MIST',
+    },
+    package_data={
+        '': ['doc/**'],
     },
 )
