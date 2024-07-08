@@ -43,7 +43,7 @@ dependencies = [
 MIST = "mist.main:main"
 
 [tool.setuptools]
-package-data = { "" = ["doc/**"] }
+package-data = { "" = ["doc/*.jpg"] }
 
 [tool.setuptools.packages.find]
 where = ["mist"]
