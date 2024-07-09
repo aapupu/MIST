@@ -5,11 +5,6 @@ MIST: an interpretable and flexible deep learning framework for single-T cell tr
 
 Installation
 -------
-### Install from PyPI
-```bash
-pip install mist-vae
-```
-
 ### Install from GitHub
 install the latest develop version
 ```bash
@@ -20,6 +15,11 @@ or git clone and install
 git clone git://github.com/aapupu/MIST.git
 cd MIST
 pip install -e .
+```
+
+### Install from PyPI
+```bash
+pip install mist-vae
 ```
 
 **Note: Python 3.8 is recommended. MIST is implemented in Pytorch framework. If cuda is available, GPU modes will be run automatically.**
