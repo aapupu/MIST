@@ -23,13 +23,14 @@ pip install mist-vae
 ```
 
 **Note: Python 3.8 is recommended. MIST is implemented in Pytorch framework. If cuda is available, GPU modes will be run automatically.**
+**Note: If you are analyzing data from Macaca, please download this branch (multi-species), install from source files and follow the instructions below!**
 
 Usage
 -------
 ### 1. API function
 ```bash
 from mist import MIST
-adata, model = MIST(rna_path, tcr_path, batch, rna_data_type, tcr_data_type, type)
+adata, model = MIST(species, rna_path, tcr_path, batch, rna_data_type, tcr_data_type, type)
 ```
 Parameters of API function are similar to command line options.<br />
 The output includes a trained model and an Anndata object, which can be further analyzed using scanpy and scirpy.<br />
@@ -42,7 +43,7 @@ The output includes a trained model and an Anndata object, which can be further 
 
 ### 2. Command line
 ```bash
-MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch1 batch2 --rna_data_type h5ad --tcr_data_type 10X --type joint
+MIST --species sp_name --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch1 batch2 --rna_data_type h5ad --tcr_data_type 10X --type joint
 ```
 
 #### Output 
@@ -50,6 +51,7 @@ MIST --rna_path rna_path1 rna_path2 --tcr_path tcr_path1 tcr_path2 --batch batch
 - model.pt: saved model
 
 #### Option
+- **--species**<br />Species name, supported: hsa, homo sapiens; mfa: macaca fascicularis; mmu: macaca mulatta; mac: mfa and mmu. Default: 'hsa'
 - **--rna_path**<br />Paths to scRNA-seq data files. (example: XXX1.h5ad XXX2.h5ad)
 - **--tcr_path**<br />Paths to scTCR-seq data files. (example: XXX1.csv XXX2.csv)
 - **--batch**<br />Batch labels. 
