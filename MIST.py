@@ -4,6 +4,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis')
     
+    parser.add_argument('--species', '-sp', type=str, nargs=1, default='hsa', help='Species name, supported: hsa, homo sapiens; mfa: macaca fascicularis; mmu: macaca mulatta; mac: mfa and mmu. Default: hsa')
     parser.add_argument('--rna_path', '-r', type=str, nargs='*', default=None, help='Paths to scRNA-seq data files')
     parser.add_argument('--tcr_path', '-t', type=str, nargs='*', default=None, help='Paths to scTCR-seq data files')
     parser.add_argument('--protein_path', '-p', type=str, nargs='?', default=None, help='Path to merged protein (ADT) data file')
@@ -48,6 +49,7 @@ if __name__ == '__main__':
     
     from mist import MIST
     adata, model = MIST(
+        species=args.species,
         rna_path=args.rna_path, 
         tcr_path=args.tcr_path, 
         batch=args.batch,
