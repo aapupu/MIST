@@ -959,18 +959,29 @@ class VAE_Multi(nn.Module):
         self.to(device)
         self.eval()
         outs = pd.DataFrame(index=adata.var.index.tolist(),columns=adata.obs[Celltype].cat.categories)
+        print(adata.obs[Celltype].cat.categories)
         for celltype_value in adata.obs[Celltype].cat.categories:
+            print('Celltype:', celltype_value)
             adata_Subs = adata[adata.obs[Celltype].isin([celltype_value])]
             attn_weight_init = np.zeros((self.x_dims))
             scdata = scRNADataset(adata_Subs)
             dataloader = DataLoaderX(scdata,  batch_size=n_samples, drop_last=False, shuffle=False, num_workers=8)
+            i = 0
             for x, _, _ in dataloader:
+                i+=1
+                print(i)
                 x = x.double().to(device)
+                print('Dataloader:', x.shape)
                 _,attn_weight = self.RNAencoder.self(x.unsqueeze(-1), output_attentions=True)
+                print('RNA encoder attention')
                 attn_weight = attn_weight.detach().cpu().mean((0,1)).numpy()
+                print('Attention calculation')
                 attn_weight_init += attn_weight.mean(0)
+                print('Attention average')
             attn_weight_init /= len(dataloader)
+            print('Attention overall average')
             outs[celltype_value] = attn_weight_init
+            print('Last celltype done')
         return outs
     
     def aa_attn_weight(self, adata, TCR_dict, batch_size, device='cuda'):
