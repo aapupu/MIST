@@ -22,7 +22,7 @@ pip install -e .
 pip install mist-vae
 ```
 
-**Note: Python 3.8 is recommended. MIST is implemented in Pytorch framework. If cuda is available, GPU modes will be run automatically.**
+**Note: Python 3.8 is recommended. MIST is implemented in Pytorch framework. If cuda is available, GPU modes will be run automatically.**\
 **Note: If you are analyzing data from Macaca, please download this branch (multi-species), install from source files and follow the instructions below!**
 
 Usage
