@@ -317,3 +317,75 @@ def label_tcr_dist(adata, latent, label, similarity='L2dist'):
         similarity_i = similarity_i[~np.isnan(similarity_i)]
         dist_dict[level_i] = similarity_i
     return dist_dict
+
+# from fuzzywuzzy import fuzz
+# def compute_tcr_dist_sampling(adata, latent1, latent2, latent3, tcr, numbers=5000):
+#     """
+#     Computes the pairwise edit distances between TCR sequences and their corresponding L2 distances 
+#     in three different latent spaces, based on random sampling.
+    
+#     Args:
+#     adata : AnnData
+#         The annotated data object containing TCR sequences in `obs` and latent representations in `obsm`.
+#     latent1, latent2, latent3 : str
+#         Keys in `adata.obsm` representing three latent spaces for comparison.
+#     tcr : str
+#         Key in `adata.obs` containing TCR sequences to compare.
+#     numbers : int, optional, default=5000
+#         Number of random pairs to sample for distance computation.
+
+#     Returns:
+#     l2_distances1, l2_distances2, l2_distances3 : np.ndarray
+#         Arrays containing L2 distances between TCR pairs in the three latent spaces.
+#     edit_distances : np.ndarray
+#         Array containing the normalized edit distances (1 - partial similarity) between TCR pairs.
+#     """
+
+#     sequences = adata.obs[tcr]  
+#     latent_vectors1 = adata.obsm[latent1] 
+#     latent_vectors2 = adata.obsm[latent2]
+#     latent_vectors3 = adata.obsm[latent3]
+    
+#     n = len(sequences)
+#     if n < 2:
+#         raise ValueError("Number of TCR sequences is less than 2")
+
+#     # Initialize arrays to store computed distances
+#     edit_distances = []
+#     l2_distances1, l2_distances2, l2_distances3 = [], [], []
+
+#     for _ in range(numbers):
+#         # Randomly sample two indices without replacement
+#         idx1, idx2 = random.sample(range(n), 2)
+        
+#         # Get the sequences corresponding to the sampled indices
+#         seq1, seq2 = sequences[idx1], sequences[idx2]
+        
+#         # Compute normalized edit distance (1 - partial ratio similarity)
+#         edit_distance = 1 - fuzz.partial_ratio(seq1, seq2) / 100.0
+#         edit_distances.append(edit_distance)
+        
+#         # Compute L2 distances in the three latent spaces
+#         l2_distance1 = euclidean_distances(
+#             latent_vectors1[idx1].reshape(1, -1),
+#             latent_vectors1[idx2].reshape(1, -1)
+#         )[0, 0]
+#         l2_distances1.append(l2_distance1)
+
+#         l2_distance2 = euclidean_distances(
+#             latent_vectors2[idx1].reshape(1, -1),
+#             latent_vectors2[idx2].reshape(1, -1)
+#         )[0, 0]
+#         l2_distances2.append(l2_distance2)
+
+#         l2_distance3 = euclidean_distances(
+#             latent_vectors3[idx1].reshape(1, -1),
+#             latent_vectors3[idx2].reshape(1, -1)
+#         )[0, 0]
+#         l2_distances3.append(l2_distance3)
+
+#     edit_distances = np.array(edit_distances)
+#     l2_distances1 = np.array(l2_distances1)
+#     l2_distances2 = np.array(l2_distances2)
+#     l2_distances3 = np.array(l2_distances3)
+#     return l2_distances1, l2_distances2, l2_distances3, edit_distances
