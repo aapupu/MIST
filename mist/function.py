@@ -350,22 +350,16 @@ def label_tcr_dist(adata, latent, label, similarity='L2dist'):
 #     if n < 2:
 #         raise ValueError("Number of TCR sequences is less than 2")
 
-#     # Initialize arrays to store computed distances
 #     edit_distances = []
 #     l2_distances1, l2_distances2, l2_distances3 = [], [], []
 
 #     for _ in range(numbers):
-#         # Randomly sample two indices without replacement
 #         idx1, idx2 = random.sample(range(n), 2)
-        
-#         # Get the sequences corresponding to the sampled indices
 #         seq1, seq2 = sequences[idx1], sequences[idx2]
-        
-#         # Compute normalized edit distance (1 - partial ratio similarity)
+
 #         edit_distance = 1 - fuzz.partial_ratio(seq1, seq2) / 100.0
 #         edit_distances.append(edit_distance)
-        
-#         # Compute L2 distances in the three latent spaces
+
 #         l2_distance1 = euclidean_distances(
 #             latent_vectors1[idx1].reshape(1, -1),
 #             latent_vectors1[idx2].reshape(1, -1)
