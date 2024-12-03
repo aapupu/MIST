@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mist"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
   { name="Lai Wenpu", email="kyzy850520@163.com" },
 ]
