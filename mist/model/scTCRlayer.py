@@ -123,8 +123,8 @@ class encoder_scTCR(nn.Module):
 
     def forward(self, bv=None, bj=None, cdr3b=None, 
                 av=None, aj=None, cdr3a=None):
-        attn_mask_b = (cdr3b == 0).clone().detach()
-        attn_mask_a = (cdr3a == 0).clone().detach()
+        attn_mask_b = (cdr3b != 0).clone().detach()
+        attn_mask_a = (cdr3a != 0).clone().detach()
         cdr3b, cdr3a = self.aa_embedding(cdr3b), self.aa_embedding(cdr3a)
         cdr3b, bv, bj = self.cdr3b_encode(cdr3b, attn_mask_b), self.bv_encode(bv), self.bj_encode(bj)
         cdr3a, av, aj = self.cdr3a_encode(cdr3a, attn_mask_a), self.av_encode(av), self.aj_encode(aj)
