@@ -478,8 +478,8 @@ class VAE_scTCR(nn.Module):
             tcr = tcr.long().to(device)
             cdr3b = tcr[:, 2:(2 + self.max_len)]
             cdr3a = tcr[:, (4 + self.max_len):]
-            attn_mask_b = (cdr3b != 0).clone().detach()
-            attn_mask_a = (cdr3a != 0).clone().detach()
+            attn_mask_b = (cdr3b == 0).clone().detach()
+            attn_mask_a = (cdr3a == 0).clone().detach()
             
             cdr3b, cdr3a = self.TCRencoder.aa_embedding(cdr3b), self.TCRencoder.aa_embedding(cdr3a)
             _,attn_weight_b = self.TCRencoder.cdr3b_encode.self(cdr3b,cdr3b,cdr3b, 
@@ -512,8 +512,8 @@ class VAE_scTCR(nn.Module):
     #             tcr = tcr.long().to(device)
     #             cdr3b = tcr[:, 2:(2 + self.max_len)]
     #             cdr3a = tcr[:, (4 + self.max_len):]
-    #             attn_mask_b = (cdr3b != 0).clone().detach()
-    #             attn_mask_a = (cdr3a != 0).clone().detach()
+    #             attn_mask_b = (cdr3b == 0).clone().detach()
+    #             attn_mask_a = (cdr3a == 0).clone().detach()
                 
     #             cdr3b, cdr3a = self.TCRencoder.aa_embedding(cdr3b), self.TCRencoder.aa_embedding(cdr3a)
     #             _,attn_weight_b = self.TCRencoder.cdr3b_encode.self(cdr3b,cdr3b,cdr3b, 
@@ -984,8 +984,8 @@ class VAE_Multi(nn.Module):
             tcr = tcr.long().to(device)
             cdr3b = tcr[:, 2:(2 + self.max_len)]
             cdr3a = tcr[:, (4 + self.max_len):]
-            attn_mask_b = (cdr3b != 0).clone().detach()
-            attn_mask_a = (cdr3a != 0).clone().detach()
+            attn_mask_b = (cdr3b == 0).clone().detach()
+            attn_mask_a = (cdr3a == 0).clone().detach()
             
             cdr3b, cdr3a = self.TCRencoder.aa_embedding(cdr3b), self.TCRencoder.aa_embedding(cdr3a)
             _,attn_weight_b = self.TCRencoder.cdr3b_encode.self(cdr3b,cdr3b,cdr3b, 
