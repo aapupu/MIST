@@ -85,7 +85,7 @@ Citation
 -------
 **MIST: an interpretable and flexible deep learning framework for single-T cell transcriptome and receptor analysis**<br />
 Wenpu Lai, Yangqiu Li, Oscar Junhong Luo<br />
-bioRxiv 2024.07.05.602192; doi: https://doi.org/10.1101/2024.07.05.602192 
+Science Advances 2025 Apr 4;11(14):eadr7134. doi: 10.1126/sciadv.adr7134. Epub 2025 Apr 4.
 
 Contacts
 -------
